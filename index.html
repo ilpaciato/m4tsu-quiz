@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>M4tsu Quiz</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="main-container">
+        <div id="quiz-container" class="quiz-card">
+            
+            <header class="quiz-header">
+                <img src="./images/logo.png" alt="M4tsu Logo" class="logo">
+                <nav>
+                    <a href="#" class="nav-link active">HOME</a>
+                    <a href="#" class="nav-link">QUIZZES</a>
+                    <a href="#" class="nav-link">ABOUT</a>
+                </nav>
+            </header>
+
+            <div id="start-screen">
+                <h2>Benvenuto ai Quiz M4tsu</h2>
+                <p>Metti alla prova la tua conoscenza della cultura giapponese.</p>
+                <button id="start-btn" class="submit-btn">Inizia Quiz</button>
+            </div>
+
+            <div id="quiz-screen" class="hidden">
+                <div id="question-header"></div>
+                <div id="question-image-container"></div>
+                <div id="question-body"></div>
+                <button id="next-btn" class="submit-btn hidden">Prossima</button>
+            </div>
+
+            <div id="results-screen" class="hidden">
+                <h2>Quiz Terminato!</h2>
+                <p>Il tuo punteggio è:</p>
+                <h1 id="score-text"></h1>
+                <button id="restart-btn" class="submit-btn">Riprova</button>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
