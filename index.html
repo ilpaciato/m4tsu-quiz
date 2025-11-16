@@ -14,30 +14,78 @@
             <header class="quiz-header">
                 <img src="./images/logo.png" alt="M4tsu Logo" class="logo">
                 <nav>
-                    <a href="#" class="nav-link active">HOME</a>
-                    <a href="#" class="nav-link">QUIZZES</a>
-                    <a href="#" class="nav-link">ABOUT</a>
+                    <a href="#" class="nav-link active" data-screen="home-screen">HOME</a>
+                    <a href="#" class="nav-link" data-screen="library-screen">QUIZZES</a>
                 </nav>
             </header>
 
-            <div id="start-screen">
+            <div id="home-screen" class="screen">
                 <h2>Benvenuto ai Quiz M4tsu</h2>
-                <p>Metti alla prova la tua conoscenza della cultura giapponese.</p>
-                <button id="start-btn" class="submit-btn">Inizia Quiz</button>
+                <p>Metti alla prova la tua conoscenza della cultura giapponese e altro ancora. Scegli un quiz e inizia!</p>
+                <button id="home-to-library-btn" class="submit-btn" data-screen="library-screen">Sfoglia Quiz</button>
             </div>
 
-            <div id="quiz-screen" class="hidden">
+            <div id="library-screen" class="screen hidden">
+                <h2>Libreria Quiz</h2>
+                <p>Seleziona un argomento per iniziare.</p>
+                <div id="quiz-list-container"></div>
+            </div>
+
+            <div id="settings-screen" class="screen hidden">
+                <h2 id="settings-quiz-title"></h2>
+                <p>Configura la tua partita.</p>
+                <form id="quiz-settings-form">
+                    <div class="setting-group">
+                        <h4>Quante domande?</h4>
+                        <label><input type="radio" name="numQuestions" value="5" checked> 5</label>
+                        <label><input type="radio" name="numQuestions" value="10"> 10</label>
+                        <label><input type="radio" name="numQuestions" value="all"> Tutte</label>
+                    </div>
+                    <div class="setting-group">
+                        <h4>Quali tipi di domande?</h4>
+                        <label><input type="radio" name="questionType" value="all" checked> Tutte</label>
+                        <label><input type="radio" name="questionType" value="multiple-choice"> Solo Scelta Multipla</label>
+                        <label><input type="radio" name="questionType" value="match"> Solo Match</label>
+                    </div>
+                    <div class="setting-group">
+                        <h4>Modalità di gioco</h4>
+                        <label><input type="radio" name="quizMode" value="pratica" checked> Pratica (Nessun timer)</label>
+                        <label><input type="radio" name="quizMode" value="sfida"> Sfida (30s per domanda)</label>
+                    </div>
+                    <button id="start-quiz-btn" type="submit" class="submit-btn">Inizia Quiz</button>
+                </form>
+            </div>
+
+            <div id="quiz-screen" class="screen hidden">
+                
+                <div id="timer-display" class="hidden"></div>
+                
                 <div id="question-header"></div>
                 <div id="question-image-container"></div>
                 <div id="question-body"></div>
-                <button id="next-btn" class="submit-btn hidden">Prossima</button>
+                
+                <div id="explanation-box" class="hidden">
+                    <h4>Spiegazione:</h4>
+                    <p id="explanation-text"></p>
+                </div>
+                
+                <div class="quiz-controls">
+                    <button id="skip-btn" class="secondary-btn">Salta</button>
+                    <button id="next-btn" class="submit-btn hidden">Prossima</button>
+                </div>
+                
+                <div id="progress-bar"></div>
             </div>
 
-            <div id="results-screen" class="hidden">
+            <div id="results-screen" class="screen hidden">
                 <h2>Quiz Terminato!</h2>
-                <p>Il tuo punteggio è:</p>
+                <p>Il tuo punteggio finale è:</p>
                 <h1 id="score-text"></h1>
-                <button id="restart-btn" class="submit-btn">Riprova</button>
+                
+                <h3>Riepilogo Risposte</h3>
+                <div id="results-review-container"></div>
+                
+                <button id="restart-btn" class="submit-btn" data-screen="library-screen">Torna alla Libreria</button>
             </div>
 
         </div>

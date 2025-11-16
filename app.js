@@ -1,90 +1,222 @@
-// Aspetta che l'HTML sia stato caricato prima di eseguire lo script
 document.addEventListener("DOMContentLoaded", () => {
-
-    // Selettori degli elementi principali dell'interfaccia
-    const startScreen = document.getElementById("start-screen");
+    
+    // --- SELETTORI DOM ---
+    const screens = document.querySelectorAll(".screen");
+    const navLinks = document.querySelectorAll(".nav-link");
+    const quizContainer = document.getElementById("quiz-container");
+    
+    // Schermate
+    const homeScreen = document.getElementById("home-screen");
+    const libraryScreen = document.getElementById("library-screen");
+    const settingsScreen = document.getElementById("settings-screen");
     const quizScreen = document.getElementById("quiz-screen");
     const resultsScreen = document.getElementById("results-screen");
     
-    const startBtn = document.getElementById("start-btn");
-    const nextBtn = document.getElementById("next-btn");
-    const restartBtn = document.getElementById("restart-btn");
-    
+    // Contenitori Dinamici
+    const quizListContainer = document.getElementById("quiz-list-container");
+    const settingsQuizTitle = document.getElementById("settings-quiz-title");
+    const settingsForm = document.getElementById("quiz-settings-form");
     const questionHeader = document.getElementById("question-header");
     const questionImageContainer = document.getElementById("question-image-container");
     const questionBody = document.getElementById("question-body");
+    const explanationBox = document.getElementById("explanation-box");
+    const explanationText = document.getElementById("explanation-text");
+    const progressBar = document.getElementById("progress-bar");
     const scoreText = document.getElementById("score-text");
+    const resultsReviewContainer = document.getElementById("results-review-container");
+    const timerDisplay = document.getElementById("timer-display"); // NUOVO
+    
+    // Bottoni
+    const homeToLibraryBtn = document.getElementById("home-to-library-btn");
+    const startQuizBtn = document.getElementById("start-quiz-btn");
+    const skipBtn = document.getElementById("skip-btn");
+    const nextBtn = document.getElementById("next-btn");
+    const restartBtn = document.getElementById("restart-btn");
 
-    // Variabili di stato del quiz
-    let quizData = null;
+    // --- VARIABILI DI STATO GLOBALI ---
+    let quizLibrary = []; 
+    let selectedQuizFile = ""; 
+    let allQuestions = []; 
+    let filteredQuestions = []; 
     let currentQuestionIndex = 0;
     let score = 0;
-
-    // --- 1. FUNZIONE DI AVVIO ---
+    let userAnswers = []; 
+    let matchState = { 
+        selectedConcept: null,
+        selectedDescription: null,
+        matchedPairs: 0
+    };
     
-    // Carica il file JSON con le domande
-    async function loadQuizData() {
-        try {
-            const response = await fetch("./data/quizzes.json");
-            if (!response.ok) {
-                throw new Error("Errore nel caricamento del file quizzes.json");
+    // Variabili Timer (NUOVE)
+    let timerInterval = null;
+    let quizMode = 'pratica';
+    let timeLeft = 0;
+
+    // --- 1. FUNZIONI DI NAVIGAZIONE SCHERMATE ---
+
+    function showScreen(screenId) {
+        screens.forEach(screen => {
+            screen.classList.add("hidden");
+        });
+        document.getElementById(screenId).classList.remove("hidden");
+        
+        navLinks.forEach(link => {
+            if (link.dataset.screen === screenId) {
+                link.classList.add("active");
+            } else {
+                link.classList.remove("active");
             }
-            quizData = await response.json();
-            // Per ora carichiamo solo il primo quiz nel file JSON
-            // In futuro potresti far scegliere all'utente quale quiz fare
-            quizData = quizData.quizzes[0];
+        });
+    }
+
+    function setupNavigation() {
+        navLinks.forEach(link => {
+            link.addEventListener("click", (e) => {
+                e.preventDefault();
+                showScreen(link.dataset.screen);
+            });
+        });
+
+        homeToLibraryBtn.addEventListener("click", () => showScreen("library-screen"));
+        restartBtn.addEventListener("click", () => showScreen(restartBtn.dataset.screen));
+        
+        settingsForm.addEventListener("submit", (e) => {
+            e.preventDefault();
+            startQuiz();
+        });
+        
+        nextBtn.addEventListener("click", nextQuestion);
+        skipBtn.addEventListener("click", skipQuestion);
+    }
+
+    // --- 2. SCHERMATA LIBRERIA QUIZ ---
+
+    async function loadQuizLibrary() {
+        try {
+            const response = await fetch("./data/quiz-list.json");
+            if (!response.ok) throw new Error("Errore nel caricamento della libreria quiz.");
+            quizLibrary = await response.json();
+            
+            quizListContainer.innerHTML = ""; 
+            
+            quizLibrary.forEach(quiz => {
+                const quizCard = document.createElement("div");
+                quizCard.className = "quiz-list-item";
+                quizCard.innerHTML = `
+                    <h3>${quiz.title}</h3>
+                    <p>${quiz.description}</p>
+                `;
+                quizCard.addEventListener("click", () => selectQuiz(quiz));
+                quizListContainer.appendChild(quizCard);
+            });
+            
         } catch (error) {
             console.error(error);
-            questionHeader.innerHTML = "<h2>Impossibile caricare il quiz. Riprova.</h2>";
+            quizListContainer.innerHTML = "<p>Impossibile caricare i quiz. Riprova più tardi.</p>";
         }
     }
 
-    // Avvia il quiz
-    function startQuiz() {
-        if (!quizData) {
-            console.error("Dati del quiz non ancora caricati");
+    function selectQuiz(quiz) {
+        selectedQuizFile = quiz.file;
+        settingsQuizTitle.textContent = quiz.title; 
+        settingsForm.reset(); 
+        showScreen("settings-screen");
+    }
+
+    // --- 3. LOGICA DI AVVIO DEL QUIZ ---
+
+    async function startQuiz() {
+        // 1. Raccogli le impostazioni
+        const formData = new FormData(settingsForm);
+        const settings = {
+            numQuestions: formData.get("numQuestions"),
+            questionType: formData.get("questionType"),
+            quizMode: formData.get("quizMode") // NUOVO
+        };
+        quizMode = settings.quizMode; // Salva la modalità globalmente
+
+        // 2. Carica le domande
+        try {
+            const response = await fetch(`./data/${selectedQuizFile}`);
+            if (!response.ok) throw new Error(`Errore nel caricamento del file ${selectedQuizFile}`);
+            const quizData = await response.json();
+            allQuestions = quizData.questions;
+        } catch (error) {
+            console.error(error);
             return;
         }
-        startScreen.classList.add("hidden");
-        resultsScreen.classList.add("hidden");
-        quizScreen.classList.remove("hidden");
         
+        // 3. Filtra le domande
+        let tempQuestions = [...allQuestions];
+
+        if (settings.questionType !== "all") {
+            tempQuestions = tempQuestions.filter(q => q.type === settings.questionType);
+        }
+        
+        tempQuestions.sort(() => Math.random() - 0.5);
+        
+        if (settings.numQuestions !== "all") {
+            filteredQuestions = tempQuestions.slice(0, Number(settings.numQuestions));
+        } else {
+            filteredQuestions = tempQuestions;
+        }
+        
+        if (filteredQuestions.length === 0) {
+            alert("Nessuna domanda trovata con queste impostazioni. Prova a cambiarle.");
+            return;
+        }
+
+        // 4. Resetta stato e avvia
         currentQuestionIndex = 0;
         score = 0;
+        userAnswers = new Array(filteredQuestions.length).fill(null);
+        stopTimer(); // Assicura che ogni timer sia pulito
+        
+        buildProgressBar();
         showQuestion();
+        showScreen("quiz-screen");
     }
 
-    // --- 2. LOGICA DI VISUALIZZAZIONE DELLE DOMANDE ---
+    // --- 4. SCHERMATA QUIZ IN CORSO ---
 
     function showQuestion() {
-        // Pulisce la schermata precedente
         resetQuestionScreen();
         
-        // Controlla se il quiz è finito
-        if (currentQuestionIndex >= quizData.questions.length) {
-            showResults();
-            return;
-        }
-
-        const question = quizData.questions[currentQuestionIndex];
+        const question = filteredQuestions[currentQuestionIndex];
         
-        // Mostra l'intestazione (es. "Domanda 1 di 10")
-        questionHeader.innerHTML = `<h2>${question.title || `Domanda ${currentQuestionIndex + 1} di ${quizData.questions.length}`}</h2>`;
+        questionHeader.innerHTML = `<h2>${question.title || `Domanda ${currentQuestionIndex + 1} di ${filteredQuestions.length}`}</h2>`;
 
-        // Mostra l'immagine se presente
         if (question.image) {
             questionImageContainer.innerHTML = `<img src="${question.image}" alt="Immagine della domanda">`;
         }
 
-        // Decide quale tipo di domanda mostrare
         if (question.type === "multiple-choice") {
             displayMultipleChoice(question);
         } else if (question.type === "match") {
             displayMatch(question);
         }
+        
+        updateProgressBar();
+        
+        // AVVIA IL TIMER SE IN MODALITÀ SFIDA
+        if (quizMode === 'sfida') {
+            startTimer(30); // 30 secondi per domanda
+        }
+    }
+    
+    function resetQuestionScreen() {
+        questionHeader.innerHTML = "";
+        questionImageContainer.innerHTML = "";
+        questionBody.innerHTML = "";
+        questionBody.className = "";
+        explanationBox.classList.add("hidden");
+        nextBtn.classList.add("hidden");
+        skipBtn.classList.remove("hidden");
+        stopTimer(); // Ferma il timer quando si resetta
+        
+        matchState = { selectedConcept: null, selectedDescription: null, matchedPairs: 0 };
     }
 
-    // Mostra una domanda a risposta multipla
     function displayMultipleChoice(question) {
         questionBody.className = "multiple-choice";
         questionBody.innerHTML = `<h3>${question.question}</h3>`;
@@ -92,20 +224,19 @@ document.addEventListener("DOMContentLoaded", () => {
         const optionsGrid = document.createElement("div");
         optionsGrid.className = "options-grid";
 
-        // Crea un bottone per ogni opzione
         question.options.forEach(option => {
             const button = document.createElement("button");
             button.className = "option-btn";
             button.textContent = option;
-            button.addEventListener("click", () => handleAnswer(option, question.answer, button));
+            button.addEventListener("click", () => handleMultipleChoiceAnswer(option, question.answer, button, question.explanation));
             optionsGrid.appendChild(button);
         });
         
         questionBody.appendChild(optionsGrid);
     }
-
-    // Mostra una domanda di tipo "Match"
+    
     function displayMatch(question) {
+        // ... (codice identico a prima) ...
         questionBody.className = "match";
         
         const conceptsCol = document.createElement("div");
@@ -116,7 +247,6 @@ document.addEventListener("DOMContentLoaded", () => {
         descriptionsCol.className = "match-column";
         descriptionsCol.innerHTML = "<h4>Descrizioni</h4>";
 
-        // Per rendere le cose più interessanti, mescoliamo le descrizioni
         const shuffledDescriptions = [...question.descriptions].sort(() => Math.random() - 0.5);
 
         question.concepts.forEach(concept => {
@@ -133,30 +263,22 @@ document.addEventListener("DOMContentLoaded", () => {
         questionBody.appendChild(descriptionsCol);
     }
 
-    // Pulisce la schermata per la prossima domanda
-    function resetQuestionScreen() {
-        questionHeader.innerHTML = "";
-        questionImageContainer.innerHTML = "";
-        questionBody.innerHTML = "";
-        questionBody.className = "";
-        nextBtn.classList.add("hidden");
-    }
-
-    // --- 3. LOGICA DI GESTIONE DELLE RISPOSTE ---
-
-    // Gestione risposta multipla
-    function handleAnswer(selectedOption, correctAnswer, selectedButton) {
-        const buttons = document.querySelectorAll(".option-btn");
+    function handleMultipleChoiceAnswer(selectedOption, correctAnswer, selectedButton, explanation) {
+        if (quizMode === 'sfida') stopTimer(); // Ferma il timer
         
-        // Disabilita tutti i bottoni dopo la risposta
+        const buttons = document.querySelectorAll(".option-btn");
         buttons.forEach(btn => btn.disabled = true);
-
+        
+        skipBtn.classList.add("hidden");
+        nextBtn.classList.remove("hidden");
+        
+        let isCorrect = false;
         if (selectedOption === correctAnswer) {
             score++;
+            isCorrect = true;
             selectedButton.classList.add("correct");
         } else {
             selectedButton.classList.add("wrong");
-            // Evidenzia anche la risposta corretta
             buttons.forEach(btn => {
                 if (btn.textContent === correctAnswer) {
                     btn.classList.add("correct");
@@ -164,128 +286,241 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         }
         
-        nextBtn.classList.remove("hidden");
+        userAnswers[currentQuestionIndex] = { status: isCorrect ? 'correct' : 'wrong', answer: selectedOption };
+        updateProgressBar();
+        showExplanation(explanation);
     }
-
-    // Variabili per la logica "Match"
-    let selectedConcept = null;
-    let selectedDescription = null;
-    let matchedPairs = 0;
-
-    // Crea un singolo item cliccabile per il "Match"
+    
     function createMatchItem(text, type, question) {
+        // ... (codice identico a prima) ...
         const item = document.createElement("div");
         item.className = "match-item";
         item.textContent = text;
-        item.dataset.type = type; // 'concept' o 'description'
+        item.dataset.type = type;
         
         item.addEventListener("click", () => {
-            handleMatchClick(item, type, question);
+            if (item.classList.contains("matched")) return;
+
+            const currentSelected = document.querySelector(`.match-item[data-type="${type}"].selected`);
+            if (currentSelected) currentSelected.classList.remove("selected");
+            
+            item.classList.add("selected");
+            
+            if (type === 'concept') matchState.selectedConcept = item;
+            if (type === 'description') matchState.selectedDescription = item;
+
+            if (matchState.selectedConcept && matchState.selectedDescription) {
+                checkMatch(question.answers, question.explanation);
+            }
         });
-        
         return item;
     }
-
-    // Gestione click per il "Match"
-    function handleMatchClick(item, type, question) {
-        if (item.classList.contains("matched")) return; // Già abbinato
-
-        // Rimuovi la selezione precedente dello stesso tipo
-        const currentSelected = document.querySelector(`.match-item[data-type="${type}"].selected`);
-        if (currentSelected) {
-            currentSelected.classList.remove("selected");
-        }
-        
-        // Se clicco di nuovo sullo stesso, lo deseleziono
-        if (currentSelected === item) {
-            if (type === 'concept') selectedConcept = null;
-            if (type === 'description') selectedDescription = null;
-            return;
-        }
-
-        // Seleziona il nuovo item
-        item.classList.add("selected");
-        if (type === 'concept') {
-            selectedConcept = item;
-        } else {
-            selectedDescription = item;
-        }
-
-        // Se ho selezionato entrambi, controllo la corrispondenza
-        if (selectedConcept && selectedDescription) {
-            checkMatch(question.answers);
-        }
-    }
-
-    // Controlla se il concept e la description selezionati sono corretti
-    function checkMatch(answers) {
-        const conceptText = selectedConcept.textContent;
-        const descriptionText = selectedDescription.textContent;
+    
+    function checkMatch(answers, explanation) {
+        // ... (logica di checkMatch identica a prima) ...
+        const conceptText = matchState.selectedConcept.textContent;
+        const descriptionText = matchState.selectedDescription.textContent;
 
         if (answers[conceptText] === descriptionText) {
-            // Corretto!
-            selectedConcept.classList.add("matched");
-            selectedDescription.classList.add("matched");
-            selectedConcept.classList.remove("selected");
-            selectedDescription.classList.remove("selected");
+            matchState.selectedConcept.classList.add("matched");
+            matchState.selectedDescription.classList.add("matched");
+            matchState.matchedPairs++;
             
-            selectedConcept = null;
-            selectedDescription = null;
-            
-            matchedPairs++;
-            
-            // Controlla se tutte le coppie sono state abbinate
             const totalPairs = Object.keys(answers).length;
-            if (matchedPairs === totalPairs) {
-                score++; // +1 punto per aver completato il match
-                matchedPairs = 0; // Resetta per la prossima domanda match
+            if (matchState.matchedPairs === totalPairs) {
+                if (quizMode === 'sfida') stopTimer(); // Ferma il timer
+                score++; 
+                userAnswers[currentQuestionIndex] = { status: 'correct' };
+                updateProgressBar();
+                showExplanation(explanation);
+                skipBtn.classList.add("hidden");
                 nextBtn.classList.remove("hidden");
             }
         } else {
-            // Sbagliato!
-            selectedConcept.classList.add("wrong");
-            selectedDescription.classList.add("wrong");
+            matchState.selectedConcept.classList.add("wrong");
+            matchState.selectedDescription.classList.add("wrong");
             
-            // Rimuovi lo stato "sbagliato" dopo un secondo
+            userAnswers[currentQuestionIndex] = { status: 'wrong' }; 
+            
             setTimeout(() => {
-                selectedConcept.classList.remove("wrong", "selected");
-                selectedDescription.classList.remove("wrong", "selected");
-                selectedConcept = null;
-                selectedDescription = null;
+                matchState.selectedConcept.classList.remove("wrong", "selected");
+                matchState.selectedDescription.classList.remove("wrong", "selected");
             }, 800);
+        }
+        
+        matchState.selectedConcept = null;
+        matchState.selectedDescription = null;
+    }
+    
+    function showExplanation(explanation) {
+        if (explanation) {
+            explanationText.textContent = explanation;
+            explanationBox.classList.remove("hidden");
+        }
+    }
+    
+    function skipQuestion() {
+        if (quizMode === 'sfida') stopTimer(); // Ferma il timer
+        userAnswers[currentQuestionIndex] = { status: 'skipped' };
+        updateProgressBar();
+        nextQuestion();
+    }
+    
+    function nextQuestion() {
+        currentQuestionIndex++;
+        if (currentQuestionIndex < filteredQuestions.length) {
+            showQuestion();
+        } else {
+            showResults();
         }
     }
 
+    // --- 5. BARRA DI PROGRESSIONE ---
 
-    // --- 4. RISULTATI E NAVIGAZIONE ---
-
-    // Mostra la prossima domanda
-    function nextQuestion() {
-        currentQuestionIndex++;
+    function buildProgressBar() {
+        // ... (codice identico a prima) ...
+        progressBar.innerHTML = "";
+        for (let i = 0; i < filteredQuestions.length; i++) {
+            const dot = document.createElement("div");
+            dot.className = "progress-dot";
+            dot.dataset.index = i;
+            dot.addEventListener("click", () => jumpToQuestion(i));
+            progressBar.appendChild(dot);
+        }
+    }
+    
+    function updateProgressBar() {
+        // ... (codice identico a prima) ...
+        const dots = document.querySelectorAll(".progress-dot");
+        dots.forEach((dot, index) => {
+            const answer = userAnswers[index];
+            dot.className = "progress-dot"; 
+            
+            if (answer) {
+                dot.classList.add(answer.status); 
+            }
+            
+            if (index === currentQuestionIndex) {
+                dot.classList.add("current");
+            }
+        });
+    }
+    
+    function jumpToQuestion(index) {
+        currentQuestionIndex = index;
         showQuestion();
     }
 
-    // Mostra la schermata dei risultati finali
+    // --- 6. SCHERMATA RISULTATI ---
+
     function showResults() {
-        quizScreen.classList.add("hidden");
-        resultsScreen.classList.remove("hidden");
-        scoreText.textContent = `${score} / ${quizData.questions.length}`;
+        stopTimer(); // Ferma qualsiasi timer
+        showScreen("results-screen");
+        scoreText.textContent = `${score} / ${filteredQuestions.length}`;
+        
+        resultsReviewContainer.innerHTML = ""; 
+        
+        filteredQuestions.forEach((question, index) => {
+            const answer = userAnswers[index];
+            if (!answer) return; 
+
+            const item = document.createElement("div");
+            item.className = `result-item ${answer.status}`;
+            
+            let questionText = question.question || question.title;
+            let answerText = "";
+            
+            if (answer.status === 'correct') {
+                answerText = `<span>Risposta corretta.</span>`;
+            } else if (answer.status === 'wrong') {
+                // MODIFICA: Gestisce il "Tempo Scaduto"
+                if (answer.answer === 'Tempo scaduto') {
+                    answerText = `<span>Tempo scaduto. Risposta corretta: ${question.answer}</span>`;
+                } else {
+                    answerText = `<span>La tua risposta: ${answer.answer}. Corretta: ${question.answer}</span>`;
+                }
+            } else {
+                answerText = `<span>Domanda saltata.</span>`;
+            }
+
+            item.innerHTML = `
+                <p>${index + 1}. ${questionText}</p>
+                ${answerText}
+                <div class="result-explanation hidden">
+                    <p>${question.explanation}</p>
+                </div>
+            `;
+            
+            item.addEventListener("click", () => {
+                item.querySelector(".result-explanation").classList.toggle("hidden");
+            });
+            
+            resultsReviewContainer.appendChild(item);
+        });
+    }
+    
+    // --- 7. FUNZIONI TIMER (NUOVE) ---
+
+    /**
+     * Avvia il conto alla rovescia per la domanda.
+     * @param {number} seconds Numero di secondi
+     */
+    function startTimer(seconds) {
+        stopTimer(); // Pulisce timer precedenti
+        timeLeft = seconds;
+        timerDisplay.textContent = `Tempo: ${timeLeft}s`;
+        timerDisplay.classList.remove("hidden");
+
+        timerInterval = setInterval(() => {
+            timeLeft--;
+            timerDisplay.textContent = `Tempo: ${timeLeft}s`;
+            if (timeLeft <= 0) {
+                handleTimeUp();
+            }
+        }, 1000);
     }
 
-    // --- 5. COLLEGAMENTO DEGLI EVENTI ---
-    
-    // Inizializza tutto
-    (async () => {
-        await loadQuizData(); // Aspetta che il JSON sia caricato
-        
-        // Ora che i dati ci sono, collega gli eventi ai bottoni
-        startBtn.addEventListener("click", startQuiz);
-        nextBtn.addEventListener("click", nextQuestion);
-        restartBtn.addEventListener("click", () => {
-            // Ricarica la pagina per un restart semplice
-            // Oppure potresti richiamare startQuiz()
-            location.reload(); 
-        });
-    })();
+    /**
+     * Ferma il timer corrente.
+     */
+    function stopTimer() {
+        clearInterval(timerInterval);
+        timerInterval = null;
+        timerDisplay.classList.add("hidden");
+    }
 
+    /**
+     * Chiamato quando il timer arriva a 0.
+     */
+    function handleTimeUp() {
+        stopTimer();
+        
+        const question = filteredQuestions[currentQuestionIndex];
+        
+        // Disabilita opzioni
+        document.querySelectorAll(".option-btn, .match-item").forEach(el => el.disabled = true);
+        
+        // Segna come sbagliato
+        userAnswers[currentQuestionIndex] = { status: 'wrong', answer: 'Tempo scaduto' };
+        updateProgressBar();
+        
+        // Mostra spiegazione e "Next"
+        showExplanation(question.explanation);
+        nextBtn.classList.remove("hidden");
+        skipBtn.classList.add("hidden");
+    }
+
+
+    // --- 8. INIZIALIZZAZIONE ---
+
+    /**
+     * Funzione di avvio principale.
+     */
+    function init() {
+        setupNavigation();
+        loadQuizLibrary();
+        showScreen("home-screen");
+    }
+
+    init(); // Avvia l'applicazione
 });
