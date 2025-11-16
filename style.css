@@ -42,6 +42,25 @@ body {
     max-height: 100px; /* Ridotto per bilanciamento */
 }
 
+.signature {
+    position: fixed; /* Rende l'immagine fissa rispetto alla finestra */
+    bottom: 20px;    /* 20px dal bordo inferiore */
+    left: 20px;      /* 20px dal bordo sinistro */
+    width: 80px;     /* Imposta una larghezza fissa (puoi cambiarla) */
+    height: auto;    /* Mantieni le proporzioni */
+    opacity: 0.7;    /* Rendi leggermente trasparente per non distrarre */
+    z-index: 100;    /* Assicurati che sia sopra altri elementi se si sovrappongono */
+}
+
+/* Media Query per schermi più piccoli (opzionale) */
+@media (max-width: 768px) {
+    .signature {
+        width: 60px; /* Riduci la dimensione su schermi più piccoli */
+        bottom: 10px;
+        left: 10px;
+    }
+}
+
 .quiz-header nav {
     position: absolute;
     top: 1.5rem;
