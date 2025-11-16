@@ -46,7 +46,7 @@ body {
     position: fixed; /* Rende l'immagine fissa rispetto alla finestra */
     bottom: 20px;    /* 20px dal bordo inferiore */
     left: 20px;      /* 20px dal bordo sinistro */
-    width: 80px;     /* Imposta una larghezza fissa (puoi cambiarla) */
+    width: 200px;     /* Imposta una larghezza fissa (puoi cambiarla) */
     height: auto;    /* Mantieni le proporzioni */
     opacity: 0.7;    /* Rendi leggermente trasparente per non distrarre */
     z-index: 100;    /* Assicurati che sia sopra altri elementi se si sovrappongono */
