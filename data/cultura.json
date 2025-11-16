@@ -1,0 +1,76 @@
+{
+  "title": "Cultura Giapponese",
+  "questions": [
+    {
+      "type": "multiple-choice",
+      "question": "Come si chiama l'arte tradizionale giapponese di disporre i fiori?",
+      "options": [
+        "Ikebana",
+        "Origami",
+        "Haiku",
+        "Calligrafia"
+      ],
+      "answer": "Ikebana",
+      "explanation": "L'Ikebana (生け花) è l'arte giapponese della disposizione dei fiori, nota anche come 'kadō' (華道), la via dei fiori. Si basa su equilibrio, armonia e forma."
+    },
+    {
+      "type": "multiple-choice",
+      "question": "Quale è il nome della tradizionale veste giapponese?",
+      "options": [
+        "Yukata",
+        "Kimono",
+        "Hakama",
+        "Obi"
+      ],
+      "answer": "Kimono",
+      "explanation": "Il Kimono (着物) è l'abito tradizionale giapponese. Sebbene 'kimono' significhi letteralmente 'cosa da indossare', oggi si riferisce alla veste formale a forma di T."
+    },
+    {
+      "type": "match",
+      "title": "Abbina i Concetti",
+      "concepts": [
+        "Sakura",
+        "Fuji",
+        "Sushi",
+        "Samurai"
+      ],
+      "descriptions": [
+        "Guerriero della nobiltà militare",
+        "Riso e pesce crudo",
+        "La montagna più alta del Giappone",
+        "Fiore di ciliegio"
+      ],
+      "answers": {
+        "Sakura": "Fiore di ciliegio",
+        "Fuji": "La montagna più alta del Giappone",
+        "Sushi": "Riso e pesce crudo",
+        "Samurai": "Guerriero della nobiltà militare"
+      },
+      "explanation": "Questi sono alcuni dei termini più iconici associati al Giappone, dalla natura (Sakura, Fuji) alla cucina (Sushi) e alla storia (Samurai)."
+    },
+    {
+      "type": "multiple-choice",
+      "question": "Come si chiama l'arte di scrivere con pennello e inchiostro?",
+      "options": [
+        "Sumi-e",
+        "Shodō",
+        "Ukiyo-e",
+        "Manga"
+      ],
+      "answer": "Shodō",
+      "explanation": "Lo Shodō (書道), o 'via della scrittura', è l'arte della calligrafia giapponese. È considerata una forma d'arte e una pratica meditativa."
+    },
+    {
+      "type": "multiple-choice",
+      "question": "Quale è il nome del teatro di marionette giapponese?",
+      "options": [
+        "Nō",
+        "Kabuki",
+        "Bunraku",
+        "Kyōgen"
+      ],
+      "answer": "Bunraku",
+      "explanation": "Il Bunraku (文楽) è una forma sofisticata di teatro di marionette, dove grandi burattini vengono manovrati a vista da tre burattinai."
+    }
+  ]
+}

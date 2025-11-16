@@ -1,0 +1,14 @@
+[
+  {
+    "id": "cultura",
+    "title": "Cultura Giapponese",
+    "description": "Domande di base sulla cultura, l'arte e le tradizioni del Giappone.",
+    "file": "cultura.json"
+  },
+  {
+    "id": "geografia",
+    "title": "Geografia del Giappone",
+    "description": "Quanto conosci le isole, le prefetture e le città giapponesi?",
+    "file": "geografia.json"
+  }
+]
