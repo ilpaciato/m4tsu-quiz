@@ -39,7 +39,7 @@ body {
 }
 
 .logo {
-    max-height: 100px; /* Ridotto per bilanciamento */
+    max-height: 150px; /* Ridotto per bilanciamento */
 }
 
 .signature {
