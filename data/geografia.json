@@ -1,0 +1,41 @@
+{
+  "title": "Geografia del Giappone",
+  "questions": [
+    {
+      "type": "multiple-choice",
+      "question": "Qual è la capitale del Giappone?",
+      "options": [
+        "Kyoto",
+        "Osaka",
+        "Tokyo",
+        "Sapporo"
+      ],
+      "answer": "Tokyo",
+      "explanation": "Tokyo è la capitale e la metropoli più popolosa del Giappone dal 1868, quando fu rinominata da 'Edo'."
+    },
+    {
+      "type": "multiple-choice",
+      "question": "Quale delle quattro isole principali si trova più a sud?",
+      "options": [
+        "Hokkaido",
+        "Honshu",
+        "Shikoku",
+        "Kyushu"
+      ],
+      "answer": "Kyushu",
+      "explanation": "Le quattro isole principali sono Hokkaido (nord), Honshu (la più grande, al centro), Shikoku (sotto Honshu) e Kyushu (la più a sud-ovest)."
+    },
+    {
+      "type": "multiple-choice",
+      "question": "Come si chiama la famosa torre di Kyoto?",
+      "options": [
+        "Tokyo Skytree",
+        "Torre di Kyoto",
+        "Tsūtenkaku",
+        "Tempio d'Oro"
+      ],
+      "answer": "Torre di Kyoto",
+      "explanation": "La Torre di Kyoto (京都タワー) è una torre di osservazione alta 131 metri e si trova di fronte alla stazione di Kyoto. È una struttura moderna in una città antica."
+    }
+  ]
+}
