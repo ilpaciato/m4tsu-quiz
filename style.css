@@ -67,7 +67,7 @@ p { color: #666; line-height: 1.6; font-size: 1.1rem; margin-bottom: 1.5rem; }
 .text-btn { background: none; border: none; color: #999; text-decoration: underline; cursor: pointer; font-size: 0.9rem; padding: 0 10px; }
 .text-btn:hover { color: #666; }
 
-/* --- 7. LISTA & SETTINGS --- */
+/* --- 7. SETTINGS --- */
 #quiz-list-container { display: flex; flex-direction: column; gap: 1rem; }
 .quiz-list-item {
     border: 1px solid #e0e0e0; border-radius: 12px; padding: 1.5rem;
@@ -111,8 +111,8 @@ p { color: #666; line-height: 1.6; font-size: 1.1rem; margin-bottom: 1.5rem; }
 }
 .option-btn:hover:not(:disabled) { border-color: #bbb; background: #fafafa; }
 .option-btn.selected { border-color: #333; background-color: #f5f5f5; font-weight: 700; color: #000; }
-.option-btn.correct { border-color: #28a745; background-color: #e8f5e9; color: #1b5e20; }
-.option-btn.wrong { border-color: #dc3545; background-color: #fce8e6; color: #b71c1c; }
+.option-btn.correct { border-color: #28a745; background-color: #d4edda; color: #155724; }
+.option-btn.wrong { border-color: #dc3545; background-color: #f8d7da; color: #721c24; }
 .option-btn:disabled { cursor: default; }
 
 /* MATCH GAME */
@@ -121,18 +121,20 @@ p { color: #666; line-height: 1.6; font-size: 1.1rem; margin-bottom: 1.5rem; }
 .match-item {
     padding: 1rem; border: 2px solid #f0f0f0; border-radius: 10px; background: #fff;
     cursor: pointer; font-size: 0.95rem; transition: all 0.2s;
+    display: flex; justify-content: space-between; align-items: center;
+    position: relative; /* Per il badge */
 }
 .match-item:hover { border-color: #ccc; }
 
-/* Colori Match Temporanei (Associazioni) */
+/* Colori Match Temporanei (Pastello per selezione) */
 .match-item.selected { border-color: #333; background: #eee; font-weight: bold; }
-.match-color-0 { background-color: #e3f2fd; border-color: #2196f3; color: #0d47a1; } /* Blu */
-.match-color-1 { background-color: #fff9c4; border-color: #fbc02d; color: #f57f17; } /* Giallo */
-.match-color-2 { background-color: #f3e5f5; border-color: #9c27b0; color: #4a148c; } /* Viola */
-.match-color-3 { background-color: #ffe0b2; border-color: #ff9800; color: #e65100; } /* Arancio */
-.match-color-4 { background-color: #e0f2f1; border-color: #009688; color: #004d40; } /* Verde */
+.match-color-0 { background-color: #e3f2fd; border-color: #2196f3; color: #0d47a1; } 
+.match-color-1 { background-color: #fff9c4; border-color: #fbc02d; color: #f57f17; } 
+.match-color-2 { background-color: #f3e5f5; border-color: #9c27b0; color: #4a148c; } 
+.match-color-3 { background-color: #ffe0b2; border-color: #ff9800; color: #e65100; } 
+.match-color-4 { background-color: #e0f2f1; border-color: #009688; color: #004d40; } 
 
-/* Stati Match Finali (Override su colori temporanei) */
+/* Stati Match Finali (Rosso/Verde) */
 .match-item.matched { 
     border-color: #28a745 !important; 
     background-color: #d4edda !important; 
@@ -145,7 +147,24 @@ p { color: #666; line-height: 1.6; font-size: 1.1rem; margin-bottom: 1.5rem; }
     color: #721c24 !important;
 }
 
-/* FOOTER & SPIEGAZIONE */
+/* BADGE CORREZIONE (Il pallino numerato) */
+.correction-badge {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    width: 24px;
+    height: 24px;
+    background-color: #333;
+    color: #fff;
+    border-radius: 50%;
+    font-size: 0.8rem;
+    font-weight: bold;
+    margin-left: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    flex-shrink: 0; /* Non schiacciare */
+}
+
+/* FOOTER */
 .quiz-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid #f0f0f0; }
 #progress-bar { display: flex; gap: 6px; }
 .progress-dot { width: 12px; height: 12px; border: 2px solid #e0e0e0; border-radius: 50%; cursor: pointer; transition: all 0.3s; }
@@ -154,13 +173,20 @@ p { color: #666; line-height: 1.6; font-size: 1.1rem; margin-bottom: 1.5rem; }
 .progress-dot.skipped { background-color: #aaa; border-color: #aaa; }
 .action-buttons { display: flex; gap: 15px; align-items: center; }
 
-/* Spiegazione - Stile Largo */
+/* Spiegazione */
 #explanation-box {
     margin-top: 1rem; padding: 1.5rem; background: #fff9f9;
     border-left: 5px solid #D90000; border-radius: 8px; width: 100%;
 }
 #explanation-box h4 { margin: 0 0 10px 0; color: #D90000; font-size: 1.1rem; }
 #explanation-box p { margin: 0; color: #444; line-height: 1.6; }
+.correct-pair-list {
+    list-style: none; padding: 0; margin-top: 10px;
+}
+.correct-pair-list li {
+    padding: 5px 0; border-bottom: 1px dashed #ddd; color: #333; font-weight: 500;
+}
+.correct-pair-list li:last-child { border-bottom: none; }
 
 /* RIEPILOGO */
 #unanswered-list, #results-review-container { text-align: left; margin: 2rem 0; max-height: 350px; overflow-y: auto; border: 1px solid #f0f0f0; border-radius: 12px; padding: 5px; }

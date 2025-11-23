@@ -37,7 +37,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let timerInterval = null;
     let timeLeft = 30;
     
-    // Match Game State
+    // Match Game
     let activeMatches = []; 
     let currentSelection = { type: null, element: null };
     const MATCH_COLORS = ['match-color-0', 'match-color-1', 'match-color-2', 'match-color-3', 'match-color-4'];
@@ -104,7 +104,6 @@ document.addEventListener("DOMContentLoaded", () => {
             
             filteredQuestions = allQ;
             currentQuestionIndex = 0;
-            // In userAnswers salviamo anche 'matchPairs' per ricostruire lo stato visivo
             userAnswers = filteredQuestions.map(() => ({ status: 'unanswered', selectedAnswer: null, isCorrect: false, matchPairs: [] }));
             
             setupProgressBar();
@@ -135,7 +134,6 @@ document.addEventListener("DOMContentLoaded", () => {
             timerDisplay.classList.add("hidden");
         }
 
-        // Check stato risposta
         const isAnswered = (state.status === 'confirmed' || state.status === 'timeout');
         
         if (isAnswered) {
@@ -143,7 +141,18 @@ document.addEventListener("DOMContentLoaded", () => {
             skipBtn.classList.add("hidden");
             nextBtn.classList.remove("hidden");
             if (index === filteredQuestions.length - 1) nextBtn.classList.add("hidden");
-            if (q.explanation) {
+            
+            // Mostra spiegazione estesa per Match
+            if (q.type === 'match') {
+                // Costruiamo una lista delle risposte corrette
+                let html = `<p>${q.explanation || ""}</p><ul class="correct-pair-list">`;
+                Object.keys(q.answers).forEach((key, idx) => {
+                    html += `<li><span class="correction-badge">${idx + 1}</span> ${key} ➜ ${q.answers[key]}</li>`;
+                });
+                html += "</ul>";
+                explanationText.innerHTML = html;
+                explanationBox.classList.remove("hidden");
+            } else if (q.explanation) {
                 explanationText.textContent = q.explanation;
                 explanationBox.classList.remove("hidden");
             }
@@ -198,14 +207,8 @@ document.addEventListener("DOMContentLoaded", () => {
         const col1 = document.createElement("div"); col1.className = "match-column";
         const col2 = document.createElement("div"); col2.className = "match-column";
 
-        // Se è già risposto, dobbiamo ripristinare l'ordine o i colori
-        // Per semplicità, rigeneriamo gli elementi e poi applichiamo i colori salvati
-        
         let descList = q.descriptions;
-        // Mischia solo se è la prima volta (o non risposto)
         if(state.status === 'unanswered') {
-             // Nota: in un'app complessa dovresti salvare l'ordine randomizzato. 
-             // Qui assumiamo che il ricaricamento avvenga solo dopo risposta.
              descList = [...q.descriptions].sort(() => Math.random() - 0.5);
         }
 
@@ -215,38 +218,62 @@ document.addEventListener("DOMContentLoaded", () => {
         questionBody.appendChild(col1);
         questionBody.appendChild(col2);
         
-        // Se confermato, riapplica colori (ROSSO/VERDE) basati su matchPairs salvati
+        // SE CONFERMATO: Ricolora e aggiungi BADGE
         if (state.status === 'confirmed' || state.status === 'timeout') {
-            // Itera le coppie salvate e colora
+            
+            // 1. Ricolora le scelte dell'utente
             state.matchPairs.forEach(pair => {
-                // Trova elementi DOM per testo
                 const cEl = Array.from(col1.children).find(el => el.textContent === pair.c);
                 const dEl = Array.from(col2.children).find(el => el.textContent === pair.d);
-                
                 if(cEl && dEl) {
                     cEl.classList.add(pair.isCorrect ? "matched" : "wrong");
                     dEl.classList.add(pair.isCorrect ? "matched" : "wrong");
-                    // Aggiungi anche il colore di collegamento per visualizzare la coppia
-                    cEl.classList.add(pair.colorClass);
-                    dEl.classList.add(pair.colorClass);
                     cEl.style.pointerEvents = "none";
                     dEl.style.pointerEvents = "none";
                 }
             });
+
+            // 2. Aggiungi BADGE NUMERICI per mostrare le associazioni vere
+            // Iteriamo sui concetti originali per dare un numero sequenziale (1, 2, 3)
+            const concepts = q.concepts; 
+            concepts.forEach((conceptText, idx) => {
+                const correctDesc = q.answers[conceptText];
+                const badgeNum = idx + 1; // 1, 2, 3...
+
+                // Trova elemento DOM Concetto
+                const cEl = Array.from(col1.children).find(el => el.firstChild.textContent.trim() === conceptText); // firstChild per ignorare badge se già esiste
+                // Trova elemento DOM Descrizione
+                const dEl = Array.from(col2.children).find(el => el.firstChild.textContent.trim() === correctDesc);
+
+                if (cEl) addBadgeToElement(cEl, badgeNum);
+                if (dEl) addBadgeToElement(dEl, badgeNum);
+            });
         }
+    }
+
+    function addBadgeToElement(el, num) {
+        // Evita duplicati
+        if (el.querySelector(".correction-badge")) return;
+        const badge = document.createElement("span");
+        badge.className = "correction-badge";
+        badge.textContent = num;
+        el.appendChild(badge);
     }
 
     function createMatchItem(text, type) {
         const div = document.createElement("div");
         div.className = "match-item";
-        div.textContent = text;
+        // Usa span per il testo così possiamo appendere il badge dopo
+        const span = document.createElement("span");
+        span.textContent = text;
+        div.appendChild(span);
+        
         div.dataset.type = type;
         div.onclick = () => handleMatchSelection(div);
         return div;
     }
 
     function handleMatchSelection(el) {
-        // Logica selezione (identica a prima)
         const existingMatchIndex = activeMatches.findIndex(m => m.conceptEl === el || m.descEl === el);
         if (existingMatchIndex !== -1) {
             const match = activeMatches[existingMatchIndex];
@@ -309,13 +336,13 @@ document.addEventListener("DOMContentLoaded", () => {
             let savedPairs = [];
             
             activeMatches.forEach(m => {
-                const cText = m.conceptEl.textContent;
-                const dText = m.descEl.textContent;
+                // Nota: m.conceptEl ha dentro <span>Testo</span>, usiamo textContent
+                const cText = m.conceptEl.firstChild.textContent; 
+                const dText = m.descEl.firstChild.textContent;
                 const isPairCorrect = (q.answers[cText] === dText);
                 
                 if (!isPairCorrect) allCorrect = false;
                 
-                // Salva stato coppia per ricaricamento futuro
                 savedPairs.push({
                     c: cText,
                     d: dText,
@@ -326,7 +353,7 @@ document.addEventListener("DOMContentLoaded", () => {
             
             state.isCorrect = allCorrect;
             state.selectedAnswer = allCorrect ? "Tutto corretto" : "Errori presenti";
-            state.matchPairs = savedPairs; // Salviamo l'array per il rendering
+            state.matchPairs = savedPairs; 
         }
         
         loadQuestion(currentQuestionIndex);
