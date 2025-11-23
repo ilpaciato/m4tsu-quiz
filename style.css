@@ -1,7 +1,6 @@
-/* Importiamo un font pulito da Google Fonts */
+/* Importiamo font */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
 
-/* Reset di base */
 * {
     margin: 0;
     padding: 0;
@@ -24,60 +23,60 @@ body {
 }
 
 .main-container {
-    max-width: 800px;
+    max-width: 900px; /* Leggermente più largo per il layout a 2 colonne */
     width: 100%;
 }
 
-/* --- 1. LOGO FISSO (NUOVO) --- */
-.logo-fixed {
-    position: fixed;
-    top: 30px;
-    left: 30px;
-    max-height: 120px;
-    z-index: 100; /* Assicura che sia sopra lo sfondo ma sotto modali se ce ne fossero */
-    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
-}
-
+/* FIRMA (Tigre) - Ingrandita */
 .signature {
     position: fixed;
-    bottom: 20px;
-    left: 20px;
-    width: 100px;
-    opacity: 0.8;
+    bottom: 30px;
+    left: 30px;
+    width: 150px; /* Aumentato da 100px */
+    opacity: 0.9;
     z-index: 1;
 }
 
-/* --- CARD PRINCIPALE --- */
+/* CARD PRINCIPALE */
 .quiz-card {
     background-color: #ffffff;
-    border-radius: 24px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
-    padding: 1rem 2.5rem 2.5rem;
-    min-height: 550px;
+    border-radius: 20px;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08);
+    padding: 2rem 3rem;
+    min-height: 600px;
     position: relative;
     z-index: 10;
     display: flex;
     flex-direction: column;
 }
 
-/* Header interno (solo menu) */
+/* HEADER: Logo + Menu sulla stessa riga */
 .quiz-header {
     display: flex;
-    justify-content: center; /* Menu centrato */
-    padding-top: 1rem;
+    justify-content: space-between;
+    align-items: center;
     margin-bottom: 2rem;
-    position: relative;
+    border-bottom: 1px solid transparent; /* Spazio pulito */
+}
+
+/* LOGO PRINCIPALE - Ingrandito */
+.logo {
+    max-height: 100px; /* Dimensione generosa */
+    object-fit: contain;
+}
+
+.quiz-header nav {
+    display: flex;
+    gap: 2rem;
 }
 
 .nav-link {
     font-size: 0.9rem;
     font-weight: 700;
     text-decoration: none;
-    color: #888;
-    margin: 0 1rem;
-    padding-bottom: 5px;
+    color: #333;
     text-transform: uppercase;
-    transition: color 0.3s;
+    padding-bottom: 4px;
 }
 
 .nav-link.active,
@@ -86,174 +85,95 @@ body {
     border-bottom: 2px solid #D90000;
 }
 
-/* Titoli e Testi */
-h2 { color: #333; margin-bottom: 0.5rem; }
-p { color: #666; line-height: 1.6; }
-
-/* --- BOTTONI --- */
-.submit-btn {
-    background-color: #333;
-    color: #ffffff;
-    border: none;
-    padding: 1rem 2rem;
-    font-size: 1rem;
-    font-weight: 600;
-    border-radius: 12px;
-    cursor: pointer;
-    transition: all 0.2s;
-    width: 100%;
-}
-.submit-btn:hover:not(:disabled) {
-    background-color: #D90000;
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(217, 0, 0, 0.3);
-}
-.submit-btn:disabled {
-    background-color: #ccc;
-    cursor: not-allowed;
-    transform: none;
-}
-
-.secondary-btn {
-    background: transparent;
-    border: 2px solid #eee;
-    color: #555;
-    padding: 0.8rem 1.2rem;
-    border-radius: 12px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: all 0.2s;
-}
-.secondary-btn:hover {
-    border-color: #333;
-    color: #333;
-}
-
-/* --- 2. SETTINGS SCREEN (NUOVO STILE) --- */
-.settings-header {
-    position: relative;
-    margin-bottom: 2rem;
-}
-.settings-decoration {
-    position: absolute;
-    top: -30px;
-    right: -30px;
-    width: 120px;
-    opacity: 0.5;
-    pointer-events: none;
-}
-
-.setting-group {
-    margin-bottom: 2rem;
-}
-.setting-group label {
-    display: block;
-    font-weight: 600;
-    margin-bottom: 0.8rem;
-    color: #444;
-}
-
-/* Radio Buttons Numerici */
-.radio-group-numbers {
-    display: flex;
-    gap: 10px;
-}
-.radio-btn {
-    cursor: pointer;
-}
-.radio-btn input {
-    display: none; /* Nascondi il radio vero */
-}
-.radio-btn span {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 50px;
-    height: 50px;
-    border: 2px solid #eee;
-    border-radius: 12px; /* Un po' squadrati come nel mockup */
-    font-weight: 600;
-    color: #888;
-    transition: all 0.2s;
-}
-.radio-btn input:checked + span {
-    border-color: #2e7d32; /* Verde foresta o il colore del mockup */
-    background-color: #f1f8e9;
-    color: #2e7d32;
-}
-
-/* Select Style */
-.select-wrapper select {
-    width: 100%;
-    padding: 1rem;
-    border: 2px solid #eee;
-    border-radius: 12px;
-    font-size: 1rem;
-    background-color: #fff;
-    cursor: pointer;
-}
-
-/* Toggle Switch */
-.toggle-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-.switch {
-    position: relative;
-    display: inline-block;
-    width: 50px;
-    height: 28px;
-}
-.switch input { 
-    opacity: 0;
-    width: 0;
-    height: 0;
-}
-.slider {
-    position: absolute;
-    cursor: pointer;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background-color: #ccc;
-    transition: .4s;
-    border-radius: 34px;
-}
-.slider:before {
-    position: absolute;
-    content: "";
-    height: 20px;
-    width: 20px;
-    left: 4px;
-    bottom: 4px;
-    background-color: white;
-    transition: .4s;
-    border-radius: 50%;
-}
-input:checked + .slider {
-    background-color: #2e7d32;
-}
-input:checked + .slider:before {
-    transform: translateX(22px);
-}
-
-/* --- 3. QUIZ SCREEN --- */
-.quiz-top-bar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+/* TITOLI GENERALE */
+h2 {
+    text-align: center;
     margin-bottom: 1rem;
-    color: #888;
-    font-size: 0.9rem;
-    font-weight: 600;
+    color: #222;
+}
+p {
+    text-align: center;
+    margin-bottom: 2rem;
+    color: #666;
 }
 
-#question-text {
-    font-size: 1.2rem;
-    margin-bottom: 1.5rem;
+/* --- HOME SCREEN --- */
+.home-content {
+    text-align: center;
+    padding: 3rem 0;
+}
+
+/* --- LIBRARY SCREEN --- */
+#quiz-list-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+.quiz-list-item {
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    padding: 1.5rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: #fff;
+}
+.quiz-list-item:hover {
+    border-color: #D90000;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+.quiz-list-item h3 {
+    margin: 0 0 0.5rem 0;
+    color: #D90000;
+    text-align: left;
+}
+.quiz-list-item p {
+    margin: 0;
     text-align: left;
 }
 
-/* Opzioni Scelta Multipla */
+/* --- QUIZ SCREEN LAYOUT (Come da screenshot image_2241f9.png) --- */
+
+#question-counter-title {
+    font-size: 1.2rem;
+    color: #444;
+    margin-bottom: 3rem;
+    text-align: center;
+}
+
+.question-layout {
+    display: grid;
+    grid-template-columns: 45% 50%; /* Due colonne */
+    gap: 5%;
+    margin-bottom: 2rem;
+    flex-grow: 1; /* Occupa lo spazio disponibile */
+}
+
+/* Colonna Sinistra (Domanda) */
+.question-left {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+#question-text {
+    font-size: 1.3rem;
+    line-height: 1.4;
+    color: #222;
+    text-align: left; /* Allineato a sinistra come richiesto */
+}
+#question-image-container img {
+    max-width: 100%;
+    border-radius: 8px;
+    margin-top: 1rem;
+}
+
+/* Colonna Destra (Opzioni) */
+.question-right {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+/* STILE OPZIONI */
 #question-body.multiple-choice {
     display: flex;
     flex-direction: column;
@@ -262,29 +182,28 @@ input:checked + .slider:before {
 
 .option-btn {
     width: 100%;
-    padding: 1rem 1.5rem;
+    padding: 1rem 1.2rem;
     background-color: #fff;
-    border: 2px solid #eee;
-    border-radius: 12px;
+    border: 2px solid #ddd;
+    border-radius: 10px;
     text-align: left;
     font-size: 1rem;
+    font-weight: 500;
     cursor: pointer;
     transition: all 0.2s;
-    position: relative;
+    color: #333;
 }
 
 .option-btn:hover:not(:disabled) {
-    border-color: #aaa;
-    background-color: #fafafa;
+    border-color: #888;
 }
 
 /* Stati logici */
 .option-btn.selected {
     border-color: #333;
-    background-color: #f0f0f0;
-    font-weight: 600;
+    background-color: #f4f4f4;
+    font-weight: 700;
 }
-/* Solo dopo conferma */
 .option-btn.correct {
     background-color: #d4edda;
     border-color: #28a745;
@@ -295,80 +214,101 @@ input:checked + .slider:before {
     border-color: #dc3545;
     color: #721c24;
 }
-
-/* Match Game Styling */
-#question-body.match {
-    display: flex;
-    justify-content: space-between;
-    gap: 1rem;
+.option-btn:disabled {
+    cursor: default;
 }
-.match-column { width: 48%; display: flex; flex-direction: column; gap: 0.5rem; }
-.match-item {
-    padding: 1rem;
-    background: #fff;
-    border: 2px solid #eee;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 0.9rem;
-}
-.match-item.selected { border-color: #333; background: #f0f0f0; }
-.match-item.temp-match { border-color: #FFC107; background: #FFF8E1; } /* Giallo attesa conferma */
-.match-item.matched { border-color: #28a745; background: #d4edda; opacity: 0.6; pointer-events: none;}
 
-/* Quiz Controls */
-.quiz-controls {
+/* --- FOOTER DEL QUIZ (Barra, Salta, Next) --- */
+.quiz-footer {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-top: 2rem;
+    margin-top: auto; /* Spinge in basso */
     padding-top: 1rem;
-    border-top: 1px solid #f0f0f0;
 }
+
+/* Tasto Salta (a sinistra) */
+#skip-btn {
+    border: 2px solid #ccc;
+    background: #fff;
+    color: #666;
+    padding: 0.5rem 1.5rem;
+    border-radius: 30px;
+    font-weight: 600;
+    cursor: pointer;
+}
+#skip-btn:hover { border-color: #333; color: #333; }
+
+/* Barra Progresso (Quadratini al centro) */
+#progress-bar {
+    display: flex;
+    gap: 8px;
+}
+.progress-dot {
+    width: 12px;
+    height: 12px;
+    border: 2px solid #ddd;
+    border-radius: 2px; /* Quadratini leggermente arrotondati */
+    background: transparent;
+    cursor: pointer;
+}
+.progress-dot.current { border-color: #D90000; }
+.progress-dot.answered { background: #D90000; border-color: #D90000; } /* Pieni se risposti */
+.progress-dot.skipped { background: #ccc; border-color: #ccc; }
+
+/* Azioni (a destra) */
 .action-buttons {
     display: flex;
     gap: 10px;
-    flex: 1;
-    justify-content: flex-end;
 }
 
-/* Spiegazione */
-#explanation-box {
-    margin-top: 1.5rem;
-    padding: 1rem;
-    background: #f8f9fa;
-    border-left: 4px solid #333;
-    border-radius: 4px;
+.submit-btn {
+    background-color: #333;
+    color: #fff;
+    border: none;
+    padding: 0.8rem 2rem;
+    border-radius: 30px;
+    font-weight: 700;
+    cursor: pointer;
+    min-width: 120px;
+}
+.submit-btn:hover:not(:disabled) {
+    background-color: #D90000;
+}
+.submit-btn:disabled {
+    background-color: #eee;
+    color: #aaa;
+    cursor: not-allowed;
 }
 
-/* --- REVIEW SCREEN (NUOVO) --- */
-#unanswered-list {
-    max-height: 250px;
-    overflow-y: auto;
-    margin: 1.5rem 0;
-    border: 1px solid #eee;
-    border-radius: 8px;
-}
-.review-item {
-    padding: 0.8rem;
-    border-bottom: 1px solid #eee;
-    display: flex;
+/* Match Styling */
+#question-body.match {
+    flex-direction: row;
     justify-content: space-between;
-    align-items: center;
 }
-.review-item:last-child { border-bottom: none; }
-.review-status {
-    font-size: 0.8rem;
-    padding: 2px 8px;
-    border-radius: 4px;
-    background: #eee;
+.match-column { width: 48%; display: flex; flex-direction: column; gap: 0.5rem; }
+.match-item {
+    padding: 0.8rem;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    background: #fff;
+    cursor: pointer;
 }
-.review-status.skipped { background: #fff3cd; color: #856404; }
+.match-item.selected { border-color: #333; background: #eee; }
+.match-item.matched { border-color: #28a745; background: #d4edda; opacity: 0.6; }
 
-.review-actions {
-    display: flex;
-    gap: 1rem;
-    justify-content: center;
-}
-
-/* Utility */
+/* Utilities */
 .hidden { display: none !important; }
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .question-layout {
+        grid-template-columns: 1fr; /* Una colonna su mobile */
+        gap: 1rem;
+    }
+    .question-right { order: 2; }
+    .question-left { order: 1; text-align: center; margin-bottom: 1rem; }
+    #question-text { text-align: center; }
+    .quiz-footer { flex-direction: column; gap: 1rem; }
+    .signature { width: 80px; bottom: 10px; left: 10px; }
+}

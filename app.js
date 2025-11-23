@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
     
-    // --- ELEMENTI DOM ---
+    // --- ELEMENTI ---
     const screens = document.querySelectorAll(".screen");
     const navLinks = document.querySelectorAll(".nav-link");
     
@@ -12,54 +12,42 @@ document.addEventListener("DOMContentLoaded", () => {
     const reviewScreen = document.getElementById("review-screen");
     const resultsScreen = document.getElementById("results-screen");
     
-    // Elementi Quiz
+    // Elementi Quiz UI
     const quizListContainer = document.getElementById("quiz-list-container");
     const settingsQuizTitle = document.getElementById("settings-quiz-title");
     const settingsForm = document.getElementById("quiz-settings-form");
     
-    const questionCounter = document.getElementById("question-counter");
+    const questionCounterTitle = document.getElementById("question-counter-title");
     const questionText = document.getElementById("question-text");
     const questionImageContainer = document.getElementById("question-image-container");
     const questionBody = document.getElementById("question-body");
     const explanationBox = document.getElementById("explanation-box");
     const explanationText = document.getElementById("explanation-text");
     const progressBar = document.getElementById("progress-bar");
-    const timerDisplay = document.getElementById("timer-display");
     
     // Bottoni
     const confirmBtn = document.getElementById("confirm-btn");
     const nextBtn = document.getElementById("next-btn");
-    const prevBtn = document.getElementById("prev-btn");
+    const skipBtn = document.getElementById("skip-btn");
     const finishEarlyBtn = document.getElementById("finish-early-btn");
-    const backToQuizBtn = document.getElementById("back-to-quiz-btn");
     const submitAllBtn = document.getElementById("submit-all-btn");
+    const backToQuizBtn = document.getElementById("back-to-quiz-btn");
     const restartBtn = document.getElementById("restart-btn");
 
-    // --- STATO ---
+    // --- STATO DEL GIOCO ---
     let quizLibrary = [];
     let selectedQuizFile = "";
-    let allQuestions = [];
     let filteredQuestions = [];
     let currentQuestionIndex = 0;
     
-    // STRUTTURA USER ANSWERS:
-    // { 
-    //   status: 'unanswered' | 'selected' | 'confirmed' | 'skipped', 
-    //   selectedAnswer: string | null, // Quello che l'utente ha cliccato ma non confermato
-    //   confirmedAnswer: string | null, // Quello che è stato validato
-    //   isCorrect: boolean
-    // }
+    // userAnswers[i] = { status: 'selected'|'confirmed'|'skipped', selectedAnswer: '...', isCorrect: true/false }
     let userAnswers = [];
-    
-    let timerInterval = null;
-    let quizMode = 'pratica';
-    let timeLeft = 0;
 
     // --- NAVIGAZIONE ---
     function showScreen(screenId) {
         screens.forEach(s => s.classList.add("hidden"));
         document.getElementById(screenId).classList.remove("hidden");
-        // Aggiorna menu
+        
         navLinks.forEach(link => {
             if(link.dataset.screen === screenId) link.classList.add("active");
             else link.classList.remove("active");
@@ -67,14 +55,14 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     document.querySelectorAll("[data-screen]").forEach(btn => {
-        btn.addEventListener("click", (e) => showScreen(btn.dataset.screen));
+        btn.addEventListener("click", () => showScreen(btn.dataset.screen));
     });
 
-    // --- LIBRERIA ---
+    // --- CARICAMENTO DATI ---
     async function loadLibrary() {
         try {
-            const res = await fetch("./data/quiz-list.json"); // Assicurati che questo file esista
-            if(!res.ok) throw new Error("No Library");
+            const res = await fetch("./data/quiz-list.json");
+            if(!res.ok) throw new Error("Err");
             quizLibrary = await res.json();
             
             quizListContainer.innerHTML = "";
@@ -82,289 +70,223 @@ document.addEventListener("DOMContentLoaded", () => {
                 const div = document.createElement("div");
                 div.className = "quiz-list-item";
                 div.innerHTML = `<h3>${quiz.title}</h3><p>${quiz.description}</p>`;
-                div.addEventListener("click", () => openSettings(quiz));
+                div.addEventListener("click", () => {
+                    selectedQuizFile = quiz.file;
+                    settingsQuizTitle.textContent = quiz.title;
+                    showScreen("settings-screen");
+                });
                 quizListContainer.appendChild(div);
             });
-        } catch(e) {
-            quizListContainer.innerHTML = "<p>Errore caricamento libreria. Controlla i file.</p>";
-        }
-    }
-
-    function openSettings(quiz) {
-        selectedQuizFile = quiz.file;
-        settingsQuizTitle.textContent = quiz.title;
-        showScreen("settings-screen");
+        } catch(e) { console.error(e); }
     }
 
     // --- AVVIO QUIZ ---
     settingsForm.addEventListener("submit", async (e) => {
         e.preventDefault();
         const formData = new FormData(settingsForm);
-        
-        // Carica dati
+        const numQ = formData.get("numQuestions");
+
         try {
             const res = await fetch(`./data/${selectedQuizFile}`);
             const data = await res.json();
-            allQuestions = data.questions;
-        } catch(err) { alert("Errore file quiz"); return; }
-
-        // Filtri
-        const numQ = formData.get("numQuestions");
-        const shuffle = formData.get("shuffle");
-        quizMode = formData.get("quizMode");
-
-        let qs = [...allQuestions];
-        if(shuffle) qs.sort(() => Math.random() - 0.5);
-        if(numQ !== "all") qs = qs.slice(0, parseInt(numQ));
-        
-        filteredQuestions = qs;
-        
-        // Init Stato
-        currentQuestionIndex = 0;
-        userAnswers = filteredQuestions.map(() => ({
-            status: 'unanswered',
-            selectedAnswer: null,
-            confirmedAnswer: null,
-            isCorrect: false
-        }));
-
-        startQuiz();
+            let allQ = data.questions;
+            
+            // Mescola e taglia
+            allQ.sort(() => Math.random() - 0.5);
+            if(numQ !== "all") allQ = allQ.slice(0, parseInt(numQ));
+            
+            filteredQuestions = allQ;
+            
+            // Inizializza stato vuoto
+            currentQuestionIndex = 0;
+            userAnswers = filteredQuestions.map(() => ({ status: 'unanswered', selectedAnswer: null, isCorrect: false }));
+            
+            setupProgressBar();
+            loadQuestion(0);
+            showScreen("quiz-screen");
+        } catch(err) { console.error(err); }
     });
 
-    function startQuiz() {
-        showScreen("quiz-screen");
-        loadQuestion(currentQuestionIndex);
-    }
-
-    // --- GESTIONE DOMANDE ---
+    // --- GESTIONE DOMANDA ---
     function loadQuestion(index) {
-        stopTimer();
-        
         const q = filteredQuestions[index];
         const state = userAnswers[index];
-
-        // UI Reset
-        questionCounter.textContent = `Domanda ${index + 1} di ${filteredQuestions.length}`;
+        
+        // UI Text
+        questionCounterTitle.textContent = `Domanda ${index + 1} di ${filteredQuestions.length}`;
         questionText.textContent = q.question;
         questionImageContainer.innerHTML = q.image ? `<img src="${q.image}">` : "";
         questionBody.innerHTML = "";
         explanationBox.classList.add("hidden");
         
-        // Bottoni navigazione
-        prevBtn.disabled = index === 0;
-        
-        // Gestione visibilità bottoni azione
+        // Gestione Bottoni
         if (state.status === 'confirmed') {
-            // Se già risposto
             confirmBtn.classList.add("hidden");
+            skipBtn.classList.add("hidden");
             nextBtn.classList.remove("hidden");
+            
             if (index === filteredQuestions.length - 1) {
                 nextBtn.classList.add("hidden");
                 finishEarlyBtn.classList.remove("hidden");
             }
-            // Mostra spiegazione subito
+
+            // Mostra spiegazione
             explanationText.textContent = q.explanation;
             explanationBox.classList.remove("hidden");
         } else {
-            // Se non ancora risposto
             confirmBtn.classList.remove("hidden");
-            confirmBtn.disabled = state.selectedAnswer === null; // Disabilita se nulla selezionato
+            confirmBtn.disabled = (state.selectedAnswer === null);
+            skipBtn.classList.remove("hidden");
             nextBtn.classList.add("hidden");
             finishEarlyBtn.classList.add("hidden");
         }
 
         // Render Opzioni
-        if (q.type === "multiple-choice") renderMultipleChoice(q, state);
-        else if (q.type === "match") renderMatch(q, state);
-
-        // Timer
-        if (quizMode === 'sfida' && state.status !== 'confirmed') {
-            startTimer(30);
-        }
+        if(q.type === 'multiple-choice') renderMultipleChoice(q, state);
+        else if(q.type === 'match') renderMatch(q, state);
+        
+        updateProgressBar();
     }
 
-    // --- RENDER SCELTA MULTIPLA ---
-    function renderMultipleChoice(question, state) {
+    function renderMultipleChoice(q, state) {
         questionBody.className = "multiple-choice";
-        
-        question.options.forEach(opt => {
+        q.options.forEach(opt => {
             const btn = document.createElement("button");
             btn.className = "option-btn";
             btn.textContent = opt;
             
-            // Ripristina stato visivo
             if (state.status === 'confirmed') {
                 btn.disabled = true;
-                if (opt === state.confirmedAnswer) {
+                if (opt === state.selectedAnswer) {
                     btn.classList.add(state.isCorrect ? "correct" : "wrong");
                 }
-                if (opt === question.answer && !state.isCorrect) {
-                    btn.classList.add("correct"); // Mostra quella giusta se hai sbagliato
-                }
+                if (opt === q.answer && !state.isCorrect) btn.classList.add("correct");
             } else {
-                // Modalità selezione
-                if (state.selectedAnswer === opt) {
-                    btn.classList.add("selected");
-                }
+                if (opt === state.selectedAnswer) btn.classList.add("selected");
                 btn.onclick = () => selectOption(opt);
             }
-            
             questionBody.appendChild(btn);
         });
     }
 
-    // --- LOGICA SELEZIONE E CONFERMA ---
-    
-    // 1. Utente clicca opzione (NON CONFERMA ANCORA)
-    function selectOption(answer) {
+    // --- AZIONI ---
+    function selectOption(ans) {
         const state = userAnswers[currentQuestionIndex];
-        
-        // Aggiorna stato temp
-        state.selectedAnswer = answer;
+        state.selectedAnswer = ans;
         state.status = 'selected';
         
-        // Aggiorna UI
-        confirmBtn.disabled = false;
-        
-        // Ridisegna classi visuali (rimuovi selected dagli altri)
-        const buttons = document.querySelectorAll(".option-btn");
-        buttons.forEach(btn => {
-            if (btn.textContent === answer) btn.classList.add("selected");
+        // Ricolora UI
+        document.querySelectorAll(".option-btn").forEach(btn => {
+            if(btn.textContent === ans) btn.classList.add("selected");
             else btn.classList.remove("selected");
         });
-    }
-
-    // 2. Utente clicca CONFERMA
-    confirmBtn.addEventListener("click", () => {
-        submitAnswer();
-    });
-
-    function submitAnswer() {
-        stopTimer();
-        const state = userAnswers[currentQuestionIndex];
-        const question = filteredQuestions[currentQuestionIndex];
-
-        if (!state.selectedAnswer && state.status !== 'skipped') return;
-
-        // Salva definitivo
-        state.confirmedAnswer = state.selectedAnswer;
-        state.status = 'confirmed';
-        state.isCorrect = (state.confirmedAnswer === question.answer);
         
-        // Aggiorna UI
-        loadQuestion(currentQuestionIndex); // Ricarica per mostrare colori e spiegazione
+        confirmBtn.disabled = false;
     }
 
-    // --- NAVIGAZIONE NEXT/PREV ---
-    nextBtn.addEventListener("click", () => {
+    confirmBtn.onclick = () => {
+        const state = userAnswers[currentQuestionIndex];
+        const q = filteredQuestions[currentQuestionIndex];
+        
+        state.status = 'confirmed';
+        state.isCorrect = (state.selectedAnswer === q.answer);
+        loadQuestion(currentQuestionIndex); // Ricarica per mostrare risultati
+    };
+
+    skipBtn.onclick = () => {
+        const state = userAnswers[currentQuestionIndex];
+        state.status = 'skipped';
+        state.selectedAnswer = null;
+        goToNext();
+    };
+
+    nextBtn.onclick = () => goToNext();
+
+    function goToNext() {
         if (currentQuestionIndex < filteredQuestions.length - 1) {
             currentQuestionIndex++;
             loadQuestion(currentQuestionIndex);
         } else {
-            showReviewScreen();
+            showReview();
         }
-    });
-
-    prevBtn.addEventListener("click", () => {
-        if (currentQuestionIndex > 0) {
-            currentQuestionIndex--;
-            loadQuestion(currentQuestionIndex);
-        }
-    });
+    }
     
-    finishEarlyBtn.addEventListener("click", showReviewScreen);
+    finishEarlyBtn.onclick = showReview;
 
-    // --- REVIEW SCREEN (Punto 5) ---
-    function showReviewScreen() {
+    // --- PROGRESS BAR ---
+    function setupProgressBar() {
+        progressBar.innerHTML = "";
+        filteredQuestions.forEach((_, idx) => {
+            const dot = document.createElement("div");
+            dot.className = "progress-dot";
+            dot.onclick = () => {
+                currentQuestionIndex = idx;
+                loadQuestion(idx);
+            };
+            progressBar.appendChild(dot);
+        });
+    }
+    
+    function updateProgressBar() {
+        const dots = document.querySelectorAll(".progress-dot");
+        dots.forEach((dot, idx) => {
+            dot.className = "progress-dot"; // Reset
+            if (idx === currentQuestionIndex) dot.classList.add("current");
+            
+            const s = userAnswers[idx];
+            if (s.status === 'confirmed') dot.classList.add("answered");
+            if (s.status === 'skipped') dot.classList.add("skipped");
+        });
+    }
+
+    // --- REVIEW SCREEN ---
+    function showReview() {
         showScreen("review-screen");
         const list = document.getElementById("unanswered-list");
         list.innerHTML = "";
         
-        let pendingCount = 0;
-
-        userAnswers.forEach((ans, idx) => {
+        let pending = 0;
+        userAnswers.forEach((ans, i) => {
             if (ans.status !== 'confirmed') {
-                pendingCount++;
-                const div = document.createElement("div");
-                div.className = "review-item";
-                div.innerHTML = `
-                    <span>Domanda ${idx + 1}</span>
-                    <span class="review-status skipped">Non risposta</span>
-                `;
-                // Cliccando ti porta lì
-                div.onclick = () => {
-                    currentQuestionIndex = idx;
+                pending++;
+                const item = document.createElement("div");
+                item.className = "quiz-list-item"; // Riutilizziamo stile
+                item.style.padding = "0.5rem";
+                item.style.marginBottom = "0.5rem";
+                item.innerHTML = `Domanda ${i+1}: ${ans.status === 'skipped' ? 'Saltata' : 'Non confermata'}`;
+                item.onclick = () => {
+                    currentQuestionIndex = i;
+                    loadQuestion(i);
                     showScreen("quiz-screen");
-                    loadQuestion(idx);
                 };
-                list.appendChild(div);
+                list.appendChild(item);
             }
         });
-
-        if (pendingCount === 0) {
-            list.innerHTML = "<p style='padding:1rem; text-align:center; color:green'>Tutte le domande completate!</p>";
-        }
+        
+        if(pending === 0) list.innerHTML = "<p>Tutte le domande completate!</p>";
     }
 
-    backToQuizBtn.addEventListener("click", () => {
-        showScreen("quiz-screen");
-    });
-
-    submitAllBtn.addEventListener("click", showResults);
-
-    // --- RISULTATI ---
-    function showResults() {
+    backToQuizBtn.onclick = () => showScreen("quiz-screen");
+    
+    submitAllBtn.onclick = () => {
         showScreen("results-screen");
         let score = 0;
         userAnswers.forEach(a => { if(a.isCorrect) score++; });
-        
         document.getElementById("score-text").textContent = `${score} / ${filteredQuestions.length}`;
         
+        // Genera riepilogo dettagliato
         const container = document.getElementById("results-review-container");
         container.innerHTML = "";
-        
         filteredQuestions.forEach((q, i) => {
             const ans = userAnswers[i];
             const div = document.createElement("div");
-            let cssClass = ans.isCorrect ? "correct" : (ans.status === 'confirmed' ? "wrong" : "skipped");
-            div.className = `result-item ${cssClass}`;
-            
-            let userTxt = ans.confirmedAnswer || "Nessuna";
-            div.innerHTML = `
-                <p><strong>${i+1}.</strong> ${q.question}</p>
-                <div style="font-size:0.9rem; margin-top:5px;">
-                    Tua: ${userTxt} <br>
-                    ${!ans.isCorrect ? `Corretta: <strong>${q.answer}</strong>` : ""}
-                </div>
-            `;
+            div.className = "quiz-list-item";
+            div.style.marginBottom = "0.5rem";
+            div.style.borderColor = ans.isCorrect ? "green" : "red";
+            div.innerHTML = `<p><strong>${i+1}.</strong> ${ans.isCorrect ? "Corretta" : "Sbagliata"}</p>`;
             container.appendChild(div);
         });
-    }
-
-    // --- TIMER ---
-    function startTimer(seconds) {
-        timeLeft = seconds;
-        timerDisplay.classList.remove("hidden");
-        timerDisplay.textContent = timeLeft;
-        
-        timerInterval = setInterval(() => {
-            timeLeft--;
-            timerDisplay.textContent = timeLeft;
-            if (timeLeft <= 0) {
-                stopTimer();
-                // Tempo scaduto: segna come sbagliato
-                const state = userAnswers[currentQuestionIndex];
-                state.selectedAnswer = "Tempo Scaduto";
-                state.isCorrect = false; 
-                submitAnswer();
-            }
-        }, 1000);
-    }
-    
-    function stopTimer() {
-        clearInterval(timerInterval);
-        timerDisplay.classList.add("hidden");
-    }
+    };
 
     // Init
     loadLibrary();
