@@ -1,11 +1,7 @@
 /* --- 1. SETUP GENERALE --- */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
 
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
     font-family: 'Inter', sans-serif;
@@ -16,6 +12,7 @@ body {
     background-repeat: no-repeat;
     background-attachment: fixed;
     display: flex;
+    flex-direction: column; /* Importante per mobile flow */
     justify-content: center;
     align-items: center;
     min-height: 100vh;
@@ -23,19 +20,17 @@ body {
     position: relative;
 }
 
-/* --- 2. ELEMENTI SFONDO --- */
+/* --- 2. ELEMENTI SFONDO (Desktop Default) --- */
 .logo-bg {
     position: fixed;
-    top: 40px;
-    left: 40px;
+    top: 40px; left: 40px;
     width: 220px;
     z-index: 1; 
 }
 
 .signature-bg {
     position: fixed;
-    bottom: 30px;
-    left: 30px;
+    bottom: 30px; left: 30px;
     width: 160px;
     opacity: 0.9;
     z-index: 1;
@@ -48,109 +43,55 @@ body {
     z-index: 10;
 }
 
-/* --- 3. CARD STILE --- */
+/* --- 3. CARD --- */
 .quiz-card {
     background-color: #ffffff;
     border-radius: 24px;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08);
     padding: 2.5rem 3rem;
     min-height: 550px;
-    display: flex;
-    flex-direction: column;
+    display: flex; flex-direction: column;
     margin: 0 auto;
 }
 
-/* --- 4. HEADER --- */
-.quiz-header {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 2rem;
-    padding-bottom: 1rem;
-    border-bottom: 1px solid #f0f0f0;
-}
-
+/* HEADER */
+.quiz-header { display: flex; justify-content: center; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid #f0f0f0; }
 .nav-link {
-    font-size: 0.9rem;
-    font-weight: 700;
-    text-decoration: none;
-    color: #888;
-    text-transform: uppercase;
-    margin: 0 1.5rem;
-    padding-bottom: 8px;
-    transition: all 0.3s;
-    letter-spacing: 1px;
+    font-size: 0.9rem; font-weight: 700; text-decoration: none; color: #888;
+    text-transform: uppercase; margin: 0 1.5rem; padding-bottom: 8px; transition: all 0.3s; letter-spacing: 1px;
 }
+.nav-link.active, .nav-link:hover { color: #D90000; border-bottom: 3px solid #D90000; }
 
-.nav-link.active, .nav-link:hover {
-    color: #D90000;
-    border-bottom: 3px solid #D90000;
-}
-
-/* --- 5. TIPOGRAFIA --- */
+/* TYPO */
 h2 { color: #222; margin-bottom: 1rem; text-align: center; font-size: 2rem; }
 h3 { font-size: 1.4rem; color: #333; margin-bottom: 1rem; }
 p { color: #666; line-height: 1.6; font-size: 1.1rem; margin-bottom: 1.5rem; }
 .center-text { text-align: center; }
 
-/* --- 6. BOTTONI --- */
+/* BOTTONI */
 .submit-btn {
-    background-color: #333;
-    color: #fff;
-    border: none;
-    padding: 0.9rem 2rem;
-    border-radius: 50px;
-    font-weight: 700;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    background-color: #333; color: #fff; border: none; padding: 0.9rem 2rem;
+    border-radius: 50px; font-weight: 700; font-size: 1rem; cursor: pointer;
+    transition: all 0.2s ease; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }
-.submit-btn:hover:not(:disabled) {
-    background-color: #D90000;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 15px rgba(217, 0, 0, 0.3);
-}
-.submit-btn:disabled {
-    background-color: #e0e0e0;
-    color: #aaa;
-    cursor: not-allowed;
-    box-shadow: none;
-}
+.submit-btn:hover:not(:disabled) { background-color: #D90000; transform: translateY(-2px); box-shadow: 0 6px 15px rgba(217, 0, 0, 0.3); }
+.submit-btn:disabled { background-color: #e0e0e0; color: #aaa; cursor: not-allowed; box-shadow: none; }
 .large-btn { padding: 1rem 3rem; font-size: 1.1rem; }
 
 .secondary-btn {
-    background: #fff;
-    border: 2px solid #e0e0e0;
-    color: #666;
-    padding: 0.7rem 1.5rem;
-    border-radius: 50px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
+    background: #fff; border: 2px solid #e0e0e0; color: #666; padding: 0.7rem 1.5rem;
+    border-radius: 50px; font-weight: 600; cursor: pointer; transition: all 0.2s;
 }
 .secondary-btn:hover { border-color: #333; color: #333; background: #fafafa; }
+.text-btn { background: none; border: none; color: #999; text-decoration: underline; cursor: pointer; font-size: 0.9rem; padding: 0 10px; }
 
-.text-btn {
-    background: none; border: none; color: #999; text-decoration: underline; cursor: pointer; font-size: 0.9rem; padding: 0 10px;
-}
-.text-btn:hover { color: #666; }
-
-/* --- 7. SETTINGS & LISTA --- */
+/* LISTA & SETTINGS */
 #quiz-list-container { display: flex; flex-direction: column; gap: 1rem; }
 .quiz-list-item {
-    border: 1px solid #e0e0e0;
-    border-radius: 12px;
-    padding: 1.5rem;
-    cursor: pointer;
-    transition: all 0.2s;
-    background: #fff;
-    text-align: left;
+    border: 1px solid #e0e0e0; border-radius: 12px; padding: 1.5rem;
+    cursor: pointer; transition: all 0.2s; background: #fff; text-align: left;
 }
-.quiz-list-item:hover {
-    border-color: #D90000;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-    transform: translateX(5px);
-}
+.quiz-list-item:hover { border-color: #D90000; box-shadow: 0 5px 15px rgba(0,0,0,0.05); transform: translateX(5px); }
 .quiz-list-item h3 { margin: 0 0 0.5rem 0; color: #D90000; font-size: 1.2rem; }
 .quiz-list-item p { margin: 0; text-align: left; font-size: 1rem; }
 
@@ -164,59 +105,26 @@ p { color: #666; line-height: 1.6; font-size: 1.1rem; margin-bottom: 1.5rem; }
 .radio-box.wide { flex: 1; }
 .radio-box input { display: none; }
 .radio-box span {
-    display: flex; justify-content: center; align-items: center;
-    padding: 0.8rem 1rem;
-    border: 2px solid #f0f0f0;
-    border-radius: 10px;
-    font-weight: 600;
-    color: #666;
-    transition: all 0.2s;
-    background: #fff;
+    display: flex; justify-content: center; align-items: center; padding: 0.8rem 1rem;
+    border: 2px solid #f0f0f0; border-radius: 10px; font-weight: 600; color: #666;
+    transition: all 0.2s; background: #fff;
 }
-.radio-box input:checked + span {
-    border-color: #D90000;
-    background-color: #fff5f5;
-    color: #D90000;
-    box-shadow: 0 2px 8px rgba(217,0,0,0.15);
-}
+.radio-box input:checked + span { border-color: #D90000; background-color: #fff5f5; color: #D90000; box-shadow: 0 2px 8px rgba(217,0,0,0.15); }
 
-/* --- 8. QUIZ SCREEN LAYOUT --- */
-.quiz-top-bar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 2rem;
-    border-bottom: 1px solid #f0f0f0;
-    padding-bottom: 1rem;
-}
+/* QUIZ SCREEN */
+.quiz-top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; border-bottom: 1px solid #f0f0f0; padding-bottom: 1rem; }
 #question-counter { margin: 0; font-size: 1.1rem; font-weight: 600; color: #888; }
-#timer-display { 
-    color: #D90000; font-weight: 700; font-size: 1.1rem;
-    background: #fff0f0; padding: 5px 12px; border-radius: 20px;
-}
+#timer-display { color: #D90000; font-weight: 700; font-size: 1.1rem; background: #fff0f0; padding: 5px 12px; border-radius: 20px; }
 
-.question-layout {
-    display: grid;
-    grid-template-columns: 45% 50%;
-    gap: 5%;
-    margin-bottom: 2rem;
-    flex-grow: 1;
-    align-items: flex-start;
-}
-
-.question-left { display: flex; flex-direction: column; justify-content: center; }
+.question-layout { display: grid; grid-template-columns: 45% 50%; gap: 5%; margin-bottom: 1rem; align-items: flex-start; }
 #question-text { text-align: left; font-size: 1.3rem; line-height: 1.5; color: #222; margin-bottom: 1rem; }
-#question-image-container img {
-    width: 100%; max-height: 250px; object-fit: cover;
-    border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-}
+#question-image-container img { width: 100%; max-height: 250px; object-fit: cover; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
 
 /* OPZIONI */
 #question-body.multiple-choice { display: flex; flex-direction: column; gap: 10px; }
 .option-btn {
-    width: 100%; padding: 1.2rem 1.5rem; background: #fff;
-    border: 2px solid #f0f0f0; border-radius: 12px;
-    text-align: left; font-size: 1rem; font-weight: 500;
+    width: 100%; padding: 1.2rem 1.5rem; background: #fff; border: 2px solid #f0f0f0;
+    border-radius: 12px; text-align: left; font-size: 1rem; font-weight: 500;
     cursor: pointer; transition: all 0.2s; color: #444;
 }
 .option-btn:hover:not(:disabled) { border-color: #bbb; background: #fafafa; }
@@ -229,79 +137,42 @@ p { color: #666; line-height: 1.6; font-size: 1.1rem; margin-bottom: 1.5rem; }
 #question-body.match { display: flex; justify-content: space-between; gap: 1rem; }
 .match-column { width: 48%; display: flex; flex-direction: column; gap: 0.8rem; }
 .match-item {
-    padding: 1rem; border: 2px solid #f0f0f0;
-    border-radius: 10px; background: #fff;
-    cursor: pointer; font-size: 0.95rem; transition: all 0.2s;
-    display: flex; justify-content: space-between; align-items: center;
-    position: relative;
+    padding: 1rem; border: 2px solid #f0f0f0; border-radius: 10px; background: #fff;
+    cursor: pointer; font-size: 0.95rem; transition: all 0.2s; display: flex; justify-content: space-between; align-items: center; position: relative;
 }
 .match-item:hover { border-color: #ccc; }
-
-/* Colori Match Temporanei */
 .match-item.selected { border-color: #333; background: #eee; font-weight: bold; }
 .match-color-0 { background-color: #e3f2fd; border-color: #2196f3; color: #0d47a1; } 
 .match-color-1 { background-color: #fff9c4; border-color: #fbc02d; color: #f57f17; } 
 .match-color-2 { background-color: #f3e5f5; border-color: #9c27b0; color: #4a148c; } 
 .match-color-3 { background-color: #ffe0b2; border-color: #ff9800; color: #e65100; } 
 .match-color-4 { background-color: #e0f2f1; border-color: #009688; color: #004d40; } 
-
-/* Stati Match Finali */
-.match-item.matched { 
-    border-color: #28a745 !important; 
-    background-color: #d4edda !important; 
-    color: #155724 !important; 
-    opacity: 1; 
-}
-.match-item.wrong { 
-    border-color: #dc3545 !important; 
-    background-color: #f8d7da !important; 
-    color: #721c24 !important; 
-}
-
+.match-item.matched { border-color: #28a745 !important; background-color: #d4edda !important; color: #155724 !important; opacity: 1; }
+.match-item.wrong { border-color: #dc3545 !important; background-color: #f8d7da !important; color: #721c24 !important; }
 .correction-badge {
-    display: inline-flex; justify-content: center; align-items: center;
-    width: 24px; height: 24px; background-color: #333; color: #fff;
-    border-radius: 50%; font-size: 0.8rem; font-weight: bold; margin-left: 10px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2); flex-shrink: 0;
+    display: inline-flex; justify-content: center; align-items: center; width: 24px; height: 24px;
+    background-color: #333; color: #fff; border-radius: 50%; font-size: 0.8rem; font-weight: bold;
+    margin-left: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); flex-shrink: 0;
 }
 
 /* FOOTER */
-.quiz-footer {
-    display: flex; justify-content: space-between; align-items: center;
-    margin-top: auto; padding-top: 1.5rem; border-top: 1px solid #f0f0f0;
-}
+.quiz-footer { display: flex; justify-content: space-between; align-items: center; margin-top: auto; padding-top: 1.5rem; border-top: 1px solid #f0f0f0; }
 #progress-bar { display: flex; gap: 6px; }
-.progress-dot {
-    width: 12px; height: 12px; border: 2px solid #e0e0e0;
-    border-radius: 50%; cursor: pointer; transition: all 0.3s;
-}
+.progress-dot { width: 12px; height: 12px; border: 2px solid #e0e0e0; border-radius: 50%; cursor: pointer; transition: all 0.3s; }
 .progress-dot.current { border-color: #D90000; transform: scale(1.2); }
 .progress-dot.answered { background-color: #D90000; border-color: #D90000; }
 .progress-dot.skipped { background-color: #aaa; border-color: #aaa; }
 .action-buttons { display: flex; gap: 15px; align-items: center; }
 
-/* --- SPIEGAZIONE COLORATA --- */
+/* SPIEGAZIONE */
 #explanation-box {
-    margin-top: 1rem; padding: 1.5rem;
-    border-radius: 8px; width: 100%;
-    /* Stile base */
+    margin-top: 1rem; padding: 1.5rem; border-radius: 8px; width: 100%;
     background: #f9f9f9; border-left: 5px solid #ccc;
 }
-
-/* Stile Risposta Errata (Rosso) */
-#explanation-box.wrong {
-    background: #fff9f9;
-    border-left-color: #dc3545;
-}
+#explanation-box.wrong { background: #fff9f9; border-left-color: #dc3545; }
 #explanation-box.wrong h4 { color: #dc3545; margin: 0 0 10px 0; font-size: 1.1rem; }
-
-/* Stile Risposta Corretta (Verde) */
-#explanation-box.correct {
-    background: #f0fff4; /* Verde molto chiaro */
-    border-left-color: #28a745;
-}
+#explanation-box.correct { background: #f0fff4; border-left-color: #28a745; }
 #explanation-box.correct h4 { color: #28a745; margin: 0 0 10px 0; font-size: 1.1rem; }
-
 #explanation-box p { margin: 0; color: #444; line-height: 1.6; }
 .correct-pair-list { list-style: none; padding: 0; margin-top: 10px; }
 .correct-pair-list li { padding: 5px 0; border-bottom: 1px dashed #ddd; color: #333; font-weight: 500; }
@@ -309,28 +180,106 @@ p { color: #666; line-height: 1.6; font-size: 1.1rem; margin-bottom: 1.5rem; }
 
 /* RIEPILOGO */
 #unanswered-list, #results-review-container {
-    text-align: left; margin: 2rem 0; max-height: 350px;
-    overflow-y: auto; border: 1px solid #f0f0f0; border-radius: 12px; padding: 5px;
+    text-align: left; margin: 2rem 0; max-height: 350px; overflow-y: auto; border: 1px solid #f0f0f0; border-radius: 12px; padding: 5px;
 }
-.review-item {
-    padding: 1rem; border-bottom: 1px solid #f0f0f0;
-    cursor: pointer; display: flex; justify-content: space-between; align-items: center;
-}
+.review-item { padding: 1rem; border-bottom: 1px solid #f0f0f0; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
 .review-item:hover { background: #fafafa; }
 .review-status { font-size: 0.8rem; padding: 4px 8px; border-radius: 4px; background: #eee; color: #666; }
 .review-status.alert { background: #fff3cd; color: #856404; }
 
-/* RESPONSIVE */
+/* --- MEDIA QUERIES: OTTIMIZZAZIONE MOBILE --- */
 @media (max-width: 768px) {
-    .logo-bg { position: relative; top: auto; left: auto; display: block; margin: 0 auto 1rem auto; width: 150px; }
-    .signature-bg { position: relative; bottom: auto; left: auto; display: block; margin: 2rem auto 0 auto; width: 120px; }
-    .main-container { padding: 0 1rem; }
-    .quiz-card { padding: 1.5rem; min-height: auto; }
-    .question-layout { grid-template-columns: 1fr; gap: 1.5rem; }
-    .question-left { order: 1; text-align: center; }
-    .question-right { order: 2; }
-    #question-text { text-align: center; font-size: 1.2rem; }
-    .quiz-footer { flex-direction: column; gap: 1.5rem; }
-    .action-buttons { width: 100%; justify-content: space-between; }
+    body {
+        display: block; /* Rimuove il flex center per lo scroll naturale */
+        padding: 1rem;
+        padding-top: 0; /* Spazio per il logo */
+        overflow-x: hidden; /* Evita scroll orizzontale */
+    }
+
+    /* Loghi: Sganciati dal fixed, entrano nel flusso */
+    .logo-bg {
+        position: relative; 
+        top: auto; left: auto;
+        display: block;
+        margin: 1rem auto 1.5rem auto; /* Centrato, spazio sotto */
+        width: 150px;
+        z-index: 1;
+    }
+    
+    .signature-bg {
+        position: relative;
+        bottom: auto; left: auto;
+        display: block;
+        margin: 2rem auto 1rem auto; /* In fondo */
+        width: 120px;
+        z-index: 1;
+    }
+
+    .main-container {
+        padding: 0; /* Il padding lo gestisce il body */
+    }
+
+    .quiz-card {
+        padding: 1.5rem; /* Ridotto spazio interno */
+        min-height: auto;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+    }
+
+    /* Layout Domande: Colonna singola */
+    .question-layout {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .question-left {
+        order: 1;
+        text-align: center;
+    }
+    #question-text {
+        text-align: center;
+        font-size: 1.2rem;
+    }
+    .question-right {
+        order: 2;
+    }
+
+    /* Adattamento Match Game Mobile */
+    #question-body.match {
+        flex-direction: column;
+    }
+    .match-column {
+        width: 100%;
+    }
+    /* Aggiunge un separatore visivo tra le due colonne match su mobile */
+    .match-column:first-child {
+        border-bottom: 1px dashed #ddd;
+        padding-bottom: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    /* Footer più compatto */
+    .quiz-footer {
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+    #progress-bar {
+        order: 1; /* Barra in alto nel footer */
+        margin-bottom: 0.5rem;
+    }
+    #skip-btn {
+        order: 3; /* Salta in fondo */
+        width: 100%;
+        border: none;
+        color: #888;
+    }
+    .action-buttons {
+        order: 2; /* Azioni principali al centro */
+        width: 100%;
+        justify-content: space-between;
+    }
+    .submit-btn {
+        flex-grow: 1;
+    }
 }
+
 .hidden { display: none !important; }

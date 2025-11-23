@@ -5,21 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>M4tsu Quiz</title>
     <link rel="stylesheet" href="style.css">
-    <!-- Font Awesome per le icone -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
 
-    <!-- LOGO E FIRMA DI SFONDO -->
-    <!-- Nota: Assicurati che le immagini esistano nella cartella /images/ -->
+    <!-- LOGO (Su mobile andrà in cima al flusso, su desktop fisso in alto a sx) -->
     <img src="./images/logo.png" alt="M4tsu Logo" class="logo-bg">
-    <img src="./images/signature.png" alt="M4tsu Signature" class="signature-bg">
 
     <div class="main-container">
 
         <div id="quiz-container" class="quiz-card">
             
-            <!-- HEADER INTERNO (Solo Menu) -->
+            <!-- HEADER -->
             <header class="quiz-header">
                 <nav>
                     <a href="#" class="nav-link active" data-screen="home-screen">HOME</a>
@@ -27,7 +24,7 @@
                 </nav>
             </header>
 
-            <!-- 1. SCHERMATA HOME -->
+            <!-- 1. HOME SCREEN -->
             <div id="home-screen" class="screen">
                 <div class="content-wrapper center-text">
                     <h2>Benvenuto ai Quiz M4tsu</h2>
@@ -36,80 +33,50 @@
                 </div>
             </div>
 
-            <!-- 2. SCHERMATA LIBRERIA -->
+            <!-- 2. LIBRARY SCREEN -->
             <div id="library-screen" class="screen hidden">
                 <h2>Libreria Quiz</h2>
-                <p>Seleziona un argomento per iniziare.</p>
-                <div id="quiz-list-container">
-                    <!-- La lista viene generata da JS -->
-                </div>
+                <p>Seleziona un argomento:</p>
+                <div id="quiz-list-container"></div>
             </div>
 
-            <!-- 3. SCHERMATA SETTINGS -->
+            <!-- 3. SETTINGS SCREEN -->
             <div id="settings-screen" class="screen hidden">
                 <h2 id="settings-quiz-title">Titolo Quiz</h2>
-                <p>Impostazioni partita</p>
+                <p>Personalizza la tua partita</p>
                 
                 <form id="quiz-settings-form">
-                    
-                    <!-- Numero Domande -->
+                    <!-- Numero -->
                     <div class="setting-block">
                         <label><i class="fa-solid fa-list-ol"></i> Numero di Domande</label>
                         <div class="radio-group">
-                            <label class="radio-box">
-                                <input type="radio" name="numQuestions" value="5" checked>
-                                <span>5</span>
-                            </label>
-                            <label class="radio-box">
-                                <input type="radio" name="numQuestions" value="10">
-                                <span>10</span>
-                            </label>
-                            <label class="radio-box">
-                                <input type="radio" name="numQuestions" value="all">
-                                <span>Tutte</span>
-                            </label>
+                            <label class="radio-box"><input type="radio" name="numQuestions" value="5" checked><span>5</span></label>
+                            <label class="radio-box"><input type="radio" name="numQuestions" value="10"><span>10</span></label>
+                            <label class="radio-box"><input type="radio" name="numQuestions" value="all"><span>Tutte</span></label>
                         </div>
                     </div>
-
                     <!-- Tipologia -->
                     <div class="setting-block">
                         <label><i class="fa-solid fa-shapes"></i> Tipologia</label>
                         <div class="radio-group vertical">
-                            <label class="radio-box wide">
-                                <input type="radio" name="questionType" value="all" checked>
-                                <span><i class="fa-solid fa-layer-group"></i> Tutte le tipologie</span>
-                            </label>
-                            <label class="radio-box wide">
-                                <input type="radio" name="questionType" value="multiple-choice">
-                                <span><i class="fa-regular fa-check-square"></i> Solo Risposta Multipla</span>
-                            </label>
-                            <label class="radio-box wide">
-                                <input type="radio" name="questionType" value="match">
-                                <span><i class="fa-solid fa-link"></i> Solo Abbinamenti</span>
-                            </label>
+                            <label class="radio-box wide"><input type="radio" name="questionType" value="all" checked><span><i class="fa-solid fa-layer-group"></i> Tutte</span></label>
+                            <label class="radio-box wide"><input type="radio" name="questionType" value="multiple-choice"><span><i class="fa-regular fa-check-square"></i> Scelta Multipla</span></label>
+                            <label class="radio-box wide"><input type="radio" name="questionType" value="match"><span><i class="fa-solid fa-link"></i> Abbinamenti</span></label>
                         </div>
                     </div>
-
                     <!-- Modalità -->
                     <div class="setting-block">
                         <label><i class="fa-solid fa-stopwatch"></i> Modalità</label>
                         <div class="radio-group">
-                            <label class="radio-box wide">
-                                <input type="radio" name="quizMode" value="pratica" checked>
-                                <span>Pratica (No Timer)</span>
-                            </label>
-                            <label class="radio-box wide">
-                                <input type="radio" name="quizMode" value="sfida">
-                                <span>Sfida (30s)</span>
-                            </label>
+                            <label class="radio-box wide"><input type="radio" name="quizMode" value="pratica" checked><span>Pratica</span></label>
+                            <label class="radio-box wide"><input type="radio" name="quizMode" value="sfida"><span>Sfida (30s)</span></label>
                         </div>
                     </div>
-
                     <button id="start-quiz-btn" type="submit" class="submit-btn large-btn">Inizia Quiz</button>
                 </form>
             </div>
 
-            <!-- 4. SCHERMATA QUIZ -->
+            <!-- 4. QUIZ SCREEN -->
             <div id="quiz-screen" class="screen hidden">
                 
                 <div class="quiz-top-bar">
@@ -118,31 +85,23 @@
                 </div>
 
                 <div class="question-layout">
-                    <!-- Colonna SX: Testo e Immagine -->
                     <div class="question-left">
-                        <h2 id="question-text">Testo della domanda?</h2>
+                        <h2 id="question-text">Testo domanda...</h2>
                         <div id="question-image-container"></div>
                     </div>
-
-                    <!-- Colonna DX: Opzioni -->
                     <div class="question-right">
                         <div id="question-body"></div>
                     </div>
                 </div>
 
-                <!-- Box Spiegazione (LARGHEZZA INTERA) -->
                 <div id="explanation-box" class="hidden">
-                    <h4><i class="fa-solid fa-circle-info"></i> Spiegazione:</h4>
-                    <p id="explanation-text"></p>
+                    <h4><i class="fa-solid fa-circle-info"></i> Risultato:</h4>
+                    <div id="explanation-text"></div>
                 </div>
-
-                <!-- Footer: Controlli -->
+                
                 <div class="quiz-footer">
                     <button id="skip-btn" class="secondary-btn">Salta</button>
-                    
-                    <!-- Barra Progresso -->
                     <div id="progress-bar"></div>
-
                     <div class="action-buttons">
                         <button id="finish-early-btn" class="text-btn">Termina</button> 
                         <button id="confirm-btn" class="submit-btn" disabled>Conferma</button>
@@ -151,13 +110,12 @@
                 </div>
             </div>
 
-            <!-- 5. SCHERMATA RIEPILOGO -->
+            <!-- 5. REVIEW SCREEN -->
             <div id="review-screen" class="screen hidden">
                 <div class="content-wrapper center-text">
                     <h2>Riepilogo</h2>
-                    <p>Stato delle tue risposte:</p>
+                    <p>Stato risposte:</p>
                     <div id="unanswered-list"></div>
-                    
                     <div class="review-actions">
                         <button id="back-to-quiz-btn" class="secondary-btn">Torna al Quiz</button>
                         <button id="submit-all-btn" class="submit-btn">Mostra Risultati</button>
@@ -165,26 +123,26 @@
                 </div>
             </div>
 
-            <!-- 6. SCHERMATA RISULTATI -->
+            <!-- 6. RESULTS SCREEN -->
             <div id="results-screen" class="screen hidden">
                 <div class="content-wrapper center-text">
                     <h2>Quiz Terminato!</h2>
-                    <p>Il tuo punteggio finale è:</p>
+                    <p>Punteggio finale:</p>
                     <h1 id="score-text">0 / 0</h1>
-                    
                     <div class="results-header">
                         <h3>Dettaglio Risposte</h3>
-                        <small>(Clicca per vedere la spiegazione)</small>
+                        <small>(Clicca per espandere)</small>
                     </div>
-                    
                     <div id="results-review-container"></div>
-                    
                     <button id="restart-btn" class="submit-btn large-btn" data-screen="library-screen">Torna alla Libreria</button>
                 </div>
             </div>
 
         </div> 
     </div> 
+
+    <!-- FIRMA (Su mobile andrà in fondo al flusso, su desktop fissa in basso a sx) -->
+    <img src="./images/signature.png" alt="M4tsu Signature" class="signature-bg">
     
     <script src="app.js"></script>
 </body>
