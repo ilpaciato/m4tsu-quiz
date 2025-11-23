@@ -5,19 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>M4tsu Quiz</title>
     <link rel="stylesheet" href="style.css">
-    <!-- Font Awesome per le icone -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
 
-    <!-- LOGO E FIRMA (Gestiti via CSS per Desktop/Mobile) -->
+    <!-- LOGO E FIRMA -->
     <img src="./images/logo.png" alt="M4tsu Logo" class="logo-bg">
     
     <div class="main-container">
 
         <div id="quiz-container" class="quiz-card">
             
-            <!-- HEADER: Menu di Navigazione -->
+            <!-- HEADER -->
             <header class="quiz-header">
                 <nav>
                     <a href="#" class="nav-link active" data-screen="home-screen">HOME</a>
@@ -38,9 +37,7 @@
             <div id="library-screen" class="screen hidden">
                 <h2>Libreria Quiz</h2>
                 <p>Seleziona un argomento:</p>
-                <div id="quiz-list-container">
-                    <!-- La lista viene generata da JS -->
-                </div>
+                <div id="quiz-list-container"></div>
             </div>
 
             <!-- 3. SETTINGS SCREEN -->
@@ -49,57 +46,29 @@
                 <p>Personalizza la tua partita</p>
                 
                 <form id="quiz-settings-form">
-                    
-                    <!-- Opzione: Numero Domande -->
                     <div class="setting-block">
                         <label><i class="fa-solid fa-list-ol"></i> Numero di Domande</label>
                         <div class="radio-group">
-                            <label class="radio-box">
-                                <input type="radio" name="numQuestions" value="5" checked>
-                                <span>5</span>
-                            </label>
-                            <label class="radio-box">
-                                <input type="radio" name="numQuestions" value="10">
-                                <span>10</span>
-                            </label>
-                            <label class="radio-box">
-                                <input type="radio" name="numQuestions" value="all">
-                                <span>Tutte</span>
-                            </label>
+                            <label class="radio-box"><input type="radio" name="numQuestions" value="5" checked><span>5</span></label>
+                            <label class="radio-box"><input type="radio" name="numQuestions" value="10"><span>10</span></label>
+                            <label class="radio-box"><input type="radio" name="numQuestions" value="all"><span>Tutte</span></label>
                         </div>
                     </div>
 
-                    <!-- Opzione: Tipologia -->
                     <div class="setting-block">
                         <label><i class="fa-solid fa-shapes"></i> Tipologia</label>
                         <div class="radio-group vertical">
-                            <label class="radio-box wide">
-                                <input type="radio" name="questionType" value="all" checked>
-                                <span><i class="fa-solid fa-layer-group"></i> Tutte le tipologie</span>
-                            </label>
-                            <label class="radio-box wide">
-                                <input type="radio" name="questionType" value="multiple-choice">
-                                <span><i class="fa-regular fa-check-square"></i> Solo Risposta Multipla</span>
-                            </label>
-                            <label class="radio-box wide">
-                                <input type="radio" name="questionType" value="match">
-                                <span><i class="fa-solid fa-link"></i> Solo Abbinamenti</span>
-                            </label>
+                            <label class="radio-box wide"><input type="radio" name="questionType" value="all" checked><span><i class="fa-solid fa-layer-group"></i> Tutte</span></label>
+                            <label class="radio-box wide"><input type="radio" name="questionType" value="multiple-choice"><span><i class="fa-regular fa-check-square"></i> Scelta Multipla</span></label>
+                            <label class="radio-box wide"><input type="radio" name="questionType" value="match"><span><i class="fa-solid fa-link"></i> Abbinamenti</span></label>
                         </div>
                     </div>
 
-                    <!-- Opzione: Modalità -->
                     <div class="setting-block">
                         <label><i class="fa-solid fa-stopwatch"></i> Modalità</label>
                         <div class="radio-group">
-                            <label class="radio-box wide">
-                                <input type="radio" name="quizMode" value="pratica" checked>
-                                <span>Pratica</span>
-                            </label>
-                            <label class="radio-box wide">
-                                <input type="radio" name="quizMode" value="sfida">
-                                <span>Sfida (30s)</span>
-                            </label>
+                            <label class="radio-box wide"><input type="radio" name="quizMode" value="pratica" checked><span>Pratica</span></label>
+                            <label class="radio-box wide"><input type="radio" name="quizMode" value="sfida"><span>Sfida (30s)</span></label>
                         </div>
                     </div>
 
@@ -110,7 +79,6 @@
             <!-- 4. QUIZ SCREEN -->
             <div id="quiz-screen" class="screen hidden">
                 
-                <!-- Info in alto -->
                 <div class="quiz-top-bar">
                     <span id="question-counter">Domanda 1 di 5</span>
                     <div id="timer-display" class="hidden"><i class="fa-solid fa-clock"></i> <span>30s</span></div>
@@ -118,37 +86,27 @@
 
                 <!-- Layout Domanda (2 Colonne) -->
                 <div class="question-layout">
-                    
-                    <!-- Colonna Sinistra: Testo e Media -->
                     <div class="question-left">
                         <h3 id="question-text">Testo della domanda...</h3>
                         <div id="question-image-container"></div>
                     </div>
-
-                    <!-- Colonna Destra: Risposte -->
                     <div class="question-right">
                         <div id="question-body"></div>
-                        
-                        <!-- Box Spiegazione -->
-                        <div id="explanation-box" class="hidden">
-                            <h4><i class="fa-solid fa-circle-info"></i> Spiegazione:</h4>
-                            <p id="explanation-text"></p>
-                        </div>
                     </div>
+                </div>
+
+                <!-- Box Spiegazione (SPOSTATO QUI SOTTO PER LARGHEZZA INTERA) -->
+                <div id="explanation-box" class="hidden">
+                    <h4><i class="fa-solid fa-circle-info"></i> Spiegazione:</h4>
+                    <p id="explanation-text"></p>
                 </div>
                 
                 <!-- Footer Controlli -->
                 <div class="quiz-footer">
                     <button id="skip-btn" class="secondary-btn">Salta</button>
-                    
-                    <div id="progress-bar">
-                        <!-- I pallini vengono generati da JS -->
-                    </div>
-
+                    <div id="progress-bar"></div>
                     <div class="action-buttons">
-                        <!-- Tasto per finire prima sempre disponibile ma discreto -->
                         <button id="finish-early-btn" class="text-btn">Termina</button> 
-                        
                         <button id="confirm-btn" class="submit-btn" disabled>Conferma</button>
                         <button id="next-btn" class="submit-btn hidden">Prossima <i class="fa-solid fa-arrow-right"></i></button>
                     </div>
@@ -161,7 +119,6 @@
                     <h2>Riepilogo</h2>
                     <p>Ecco lo stato delle tue risposte:</p>
                     <div id="unanswered-list"></div>
-                    
                     <div class="review-actions">
                         <button id="back-to-quiz-btn" class="secondary-btn">Torna al Quiz</button>
                         <button id="submit-all-btn" class="submit-btn">Mostra Risultati</button>
@@ -175,14 +132,11 @@
                     <h2>Quiz Terminato!</h2>
                     <p>Il tuo punteggio finale è:</p>
                     <h1 id="score-text">0 / 0</h1>
-                    
                     <div class="results-header">
                         <h3>Dettaglio Risposte</h3>
                         <small>(Clicca per vedere la spiegazione)</small>
                     </div>
-                    
                     <div id="results-review-container"></div>
-                    
                     <button id="restart-btn" class="submit-btn large-btn" data-screen="library-screen">Torna alla Libreria</button>
                 </div>
             </div>
@@ -190,9 +144,7 @@
         </div> 
     </div> 
 
-    <!-- FIRMA TIGRE (Fissa in basso a sinistra) -->
     <img src="./images/signature.png" alt="M4tsu Signature" class="signature-bg">
-    
     <script src="app.js"></script>
 </body>
 </html>

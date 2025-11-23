@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
     
-    // --- SELETTORI UI ---
+    // --- SELETTORI ---
     const screens = document.querySelectorAll(".screen");
     const navLinks = document.querySelectorAll(".nav-link");
     
@@ -17,7 +17,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const progressBar = document.getElementById("progress-bar");
     const timerDisplay = document.getElementById("timer-display");
     
-    // Bottoni
     const confirmBtn = document.getElementById("confirm-btn");
     const nextBtn = document.getElementById("next-btn");
     const skipBtn = document.getElementById("skip-btn");
@@ -27,7 +26,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const restartBtn = document.getElementById("restart-btn");
     const homeToLibraryBtn = document.getElementById("home-to-library-btn");
 
-    // --- VARIABILI DI GIOCO ---
+    // --- STATO ---
     let quizLibrary = [];
     let selectedQuizFile = "";
     let filteredQuestions = [];
@@ -38,11 +37,9 @@ document.addEventListener("DOMContentLoaded", () => {
     let timerInterval = null;
     let timeLeft = 30;
     
-    // Match Game Temp State
-    // activeMatches = [{ conceptEl: el, descEl: el, colorClass: 'match-color-0' }]
+    // Match Game State
     let activeMatches = []; 
-    let currentSelection = { type: null, element: null }; // Per la selezione in corso (primo click)
-    
+    let currentSelection = { type: null, element: null };
     const MATCH_COLORS = ['match-color-0', 'match-color-1', 'match-color-2', 'match-color-3', 'match-color-4'];
 
     // --- NAVIGAZIONE ---
@@ -69,9 +66,8 @@ document.addEventListener("DOMContentLoaded", () => {
     async function loadLibrary() {
         try {
             const res = await fetch("./data/quiz-list.json");
-            if(!res.ok) throw new Error("Errore lista");
+            if(!res.ok) throw new Error("Error");
             quizLibrary = await res.json();
-            
             quizListContainer.innerHTML = "";
             quizLibrary.forEach(quiz => {
                 const div = document.createElement("div");
@@ -87,7 +83,7 @@ document.addEventListener("DOMContentLoaded", () => {
         } catch(e) { quizListContainer.innerHTML = "<p>Errore caricamento.</p>"; }
     }
 
-    // --- AVVIO ---
+    // --- START QUIZ ---
     settingsForm.addEventListener("submit", async (e) => {
         e.preventDefault();
         const formData = new FormData(settingsForm);
@@ -108,7 +104,8 @@ document.addEventListener("DOMContentLoaded", () => {
             
             filteredQuestions = allQ;
             currentQuestionIndex = 0;
-            userAnswers = filteredQuestions.map(() => ({ status: 'unanswered', selectedAnswer: null, isCorrect: false }));
+            // In userAnswers salviamo anche 'matchPairs' per ricostruire lo stato visivo
+            userAnswers = filteredQuestions.map(() => ({ status: 'unanswered', selectedAnswer: null, isCorrect: false, matchPairs: [] }));
             
             setupProgressBar();
             loadQuestion(0);
@@ -116,24 +113,21 @@ document.addEventListener("DOMContentLoaded", () => {
         } catch(err) { console.error(err); }
     });
 
-    // --- LOGICA DOMANDA ---
+    // --- LOAD QUESTION ---
     function loadQuestion(index) {
         stopTimer();
         const q = filteredQuestions[index];
         const state = userAnswers[index];
         
-        // Reset Match vars
         activeMatches = [];
         currentSelection = { type: null, element: null };
 
-        // UI
         questionCounter.textContent = `Domanda ${index + 1} di ${filteredQuestions.length}`;
         questionText.textContent = q.question || q.title;
         questionImageContainer.innerHTML = q.image ? `<img src="${q.image}">` : "";
         questionBody.innerHTML = "";
         explanationBox.classList.add("hidden");
         
-        // Timer
         if(gameMode === "sfida" && state.status !== 'confirmed') {
             timerDisplay.classList.remove("hidden");
             startTimer();
@@ -141,7 +135,7 @@ document.addEventListener("DOMContentLoaded", () => {
             timerDisplay.classList.add("hidden");
         }
 
-        // Bottoni
+        // Check stato risposta
         const isAnswered = (state.status === 'confirmed' || state.status === 'timeout');
         
         if (isAnswered) {
@@ -155,7 +149,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         } else {
             confirmBtn.classList.remove("hidden");
-            confirmBtn.disabled = true; // Disabilitato di default finché non seleziona
+            confirmBtn.disabled = true; 
             skipBtn.classList.remove("hidden");
             nextBtn.classList.add("hidden");
         }
@@ -185,15 +179,12 @@ document.addEventListener("DOMContentLoaded", () => {
             }
             questionBody.appendChild(btn);
         });
-        
-        // Se c'era già una selezione temporanea, abilita conferma
         if (state.selectedAnswer && state.status === 'unanswered') confirmBtn.disabled = false;
     }
 
     function selectOptionMC(ans) {
         const state = userAnswers[currentQuestionIndex];
         state.selectedAnswer = ans;
-        
         document.querySelectorAll(".option-btn").forEach(btn => {
             if(btn.textContent === ans) btn.classList.add("selected");
             else btn.classList.remove("selected");
@@ -201,15 +192,22 @@ document.addEventListener("DOMContentLoaded", () => {
         confirmBtn.disabled = false;
     }
 
-    // --- MATCH GAME LOGIC (NUOVA) ---
+    // --- MATCH GAME LOGIC ---
     function renderMatch(q, state) {
         questionBody.className = "match";
         const col1 = document.createElement("div"); col1.className = "match-column";
         const col2 = document.createElement("div"); col2.className = "match-column";
 
-        // Se non confermato, mischia descrizioni
+        // Se è già risposto, dobbiamo ripristinare l'ordine o i colori
+        // Per semplicità, rigeneriamo gli elementi e poi applichiamo i colori salvati
+        
         let descList = q.descriptions;
-        if(state.status === 'unanswered') descList = [...q.descriptions].sort(() => Math.random() - 0.5);
+        // Mischia solo se è la prima volta (o non risposto)
+        if(state.status === 'unanswered') {
+             // Nota: in un'app complessa dovresti salvare l'ordine randomizzato. 
+             // Qui assumiamo che il ricaricamento avvenga solo dopo risposta.
+             descList = [...q.descriptions].sort(() => Math.random() - 0.5);
+        }
 
         q.concepts.forEach(c => col1.appendChild(createMatchItem(c, 'concept')));
         descList.forEach(d => col2.appendChild(createMatchItem(d, 'description')));
@@ -217,14 +215,23 @@ document.addEventListener("DOMContentLoaded", () => {
         questionBody.appendChild(col1);
         questionBody.appendChild(col2);
         
-        // Se già confermato, mostra risultati (logica semplificata per visualizzazione)
+        // Se confermato, riapplica colori (ROSSO/VERDE) basati su matchPairs salvati
         if (state.status === 'confirmed' || state.status === 'timeout') {
-            // Disabilita e colora (qui servirebbe logica complessa per ricolorare le coppie esatte)
-            // Per semplicità post-conferma, mostriamo solo se era tutto giusto o no
-            // In una implementazione avanzata salveremmo le coppie esatte fatte dall'utente.
-            document.querySelectorAll(".match-item").forEach(el => {
-                el.classList.add("matched");
-                el.style.pointerEvents = "none";
+            // Itera le coppie salvate e colora
+            state.matchPairs.forEach(pair => {
+                // Trova elementi DOM per testo
+                const cEl = Array.from(col1.children).find(el => el.textContent === pair.c);
+                const dEl = Array.from(col2.children).find(el => el.textContent === pair.d);
+                
+                if(cEl && dEl) {
+                    cEl.classList.add(pair.isCorrect ? "matched" : "wrong");
+                    dEl.classList.add(pair.isCorrect ? "matched" : "wrong");
+                    // Aggiungi anche il colore di collegamento per visualizzare la coppia
+                    cEl.classList.add(pair.colorClass);
+                    dEl.classList.add(pair.colorClass);
+                    cEl.style.pointerEvents = "none";
+                    dEl.style.pointerEvents = "none";
+                }
             });
         }
     }
@@ -239,74 +246,57 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function handleMatchSelection(el) {
-        // 1. Se clicco su un elemento già accoppiato -> LIBERALO
+        // Logica selezione (identica a prima)
         const existingMatchIndex = activeMatches.findIndex(m => m.conceptEl === el || m.descEl === el);
         if (existingMatchIndex !== -1) {
             const match = activeMatches[existingMatchIndex];
-            // Rimuovi classi colore
             match.conceptEl.classList.remove(match.colorClass);
             match.descEl.classList.remove(match.colorClass);
-            // Rimuovi da array
             activeMatches.splice(existingMatchIndex, 1);
-            // Aggiorna stato conferma
             updateMatchConfirmState();
             return;
         }
 
-        // 2. Se clicco su elemento libero
-        
-        // Se è lo stesso elemento appena cliccato -> Deseleziona
         if (currentSelection.element === el) {
             el.classList.remove("selected");
             currentSelection = { type: null, element: null };
             return;
         }
 
-        // Se ho già una selezione attiva
         if (currentSelection.element) {
-            // Se clicco sullo stesso tipo (es Concept su Concept) -> Cambio selezione
             if (currentSelection.type === el.dataset.type) {
                 currentSelection.element.classList.remove("selected");
                 el.classList.add("selected");
                 currentSelection.element = el;
             } else {
-                // TIPO OPPOSTO -> CREA COPPIA!
                 const conceptEl = currentSelection.type === 'concept' ? currentSelection.element : el;
                 const descEl = currentSelection.type === 'description' ? currentSelection.element : el;
                 
-                // Trova primo colore libero
                 const usedColors = activeMatches.map(m => m.colorClass);
                 const availableColor = MATCH_COLORS.find(c => !usedColors.includes(c)) || MATCH_COLORS[0];
 
-                // Salva coppia
                 activeMatches.push({ conceptEl, descEl, colorClass: availableColor });
                 
-                // Applica stile
                 conceptEl.classList.remove("selected");
                 descEl.classList.remove("selected");
                 conceptEl.classList.add(availableColor);
                 descEl.classList.add(availableColor);
                 
-                // Reset selezione
                 currentSelection = { type: null, element: null };
-                
                 updateMatchConfirmState();
             }
         } else {
-            // Prima selezione
             el.classList.add("selected");
             currentSelection = { type: el.dataset.type, element: el };
         }
     }
 
     function updateMatchConfirmState() {
-        // Abilita conferma solo se TUTTI i concetti sono abbinati
-        // Conta elementi totali per tipo
         const totalConcepts = document.querySelectorAll('.match-item[data-type="concept"]').length;
         confirmBtn.disabled = (activeMatches.length !== totalConcepts);
     }
 
-    // --- CONFERMA GLOBALE ---
+    // --- CONFERMA ---
     confirmBtn.onclick = () => {
         const state = userAnswers[currentQuestionIndex];
         const q = filteredQuestions[currentQuestionIndex];
@@ -315,24 +305,28 @@ document.addEventListener("DOMContentLoaded", () => {
         if (q.type === 'multiple-choice') {
             state.isCorrect = (state.selectedAnswer === q.answer);
         } else if (q.type === 'match') {
-            // Valida Match
             let allCorrect = true;
+            let savedPairs = [];
+            
             activeMatches.forEach(m => {
                 const cText = m.conceptEl.textContent;
                 const dText = m.descEl.textContent;
-                if (q.answers[cText] !== dText) {
-                    allCorrect = false;
-                    // Feedback visivo immediato sull'errore
-                    m.conceptEl.classList.add("wrong");
-                    m.descEl.classList.add("wrong");
-                } else {
-                    m.conceptEl.classList.add("matched"); // Verde
-                    m.descEl.classList.add("matched");
-                }
+                const isPairCorrect = (q.answers[cText] === dText);
+                
+                if (!isPairCorrect) allCorrect = false;
+                
+                // Salva stato coppia per ricaricamento futuro
+                savedPairs.push({
+                    c: cText,
+                    d: dText,
+                    isCorrect: isPairCorrect,
+                    colorClass: m.colorClass
+                });
             });
+            
             state.isCorrect = allCorrect;
-            // Salviamo una stringa rappresentativa
-            state.selectedAnswer = allCorrect ? "Tutti corretti" : "Alcuni errori";
+            state.selectedAnswer = allCorrect ? "Tutto corretto" : "Errori presenti";
+            state.matchPairs = savedPairs; // Salviamo l'array per il rendering
         }
         
         loadQuestion(currentQuestionIndex);
@@ -357,7 +351,7 @@ document.addEventListener("DOMContentLoaded", () => {
     
     finishEarlyBtn.onclick = showReview;
 
-    // --- TIMER ---
+    // --- TIMER & PROGRESS ---
     function startTimer() {
         timeLeft = 30;
         timerDisplay.querySelector("span").textContent = `${timeLeft}s`;
@@ -366,30 +360,23 @@ document.addEventListener("DOMContentLoaded", () => {
             timerDisplay.querySelector("span").textContent = `${timeLeft}s`;
             if (timeLeft <= 0) {
                 stopTimer();
-                const state = userAnswers[currentQuestionIndex];
-                state.status = 'timeout';
-                state.selectedAnswer = "Tempo Scaduto";
+                userAnswers[currentQuestionIndex].status = 'timeout';
+                userAnswers[currentQuestionIndex].selectedAnswer = "Tempo Scaduto";
                 loadQuestion(currentQuestionIndex);
             }
         }, 1000);
     }
-    
     function stopTimer() { if(timerInterval) clearInterval(timerInterval); }
 
-    // --- PROGRESS BAR ---
     function setupProgressBar() {
         progressBar.innerHTML = "";
         filteredQuestions.forEach((_, idx) => {
             const dot = document.createElement("div");
             dot.className = "progress-dot";
-            dot.onclick = () => {
-                currentQuestionIndex = idx;
-                loadQuestion(idx);
-            };
+            dot.onclick = () => { currentQuestionIndex = idx; loadQuestion(idx); };
             progressBar.appendChild(dot);
         });
     }
-    
     function updateProgressBar() {
         const dots = document.querySelectorAll(".progress-dot");
         dots.forEach((dot, idx) => {
@@ -401,12 +388,11 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // --- REVIEW & RESULTS ---
+    // --- REVIEW ---
     function showReview() {
         showScreen("review-screen");
         const list = document.getElementById("unanswered-list");
         list.innerHTML = "";
-        
         let pending = 0;
         userAnswers.forEach((ans, i) => {
             if (ans.status !== 'confirmed' && ans.status !== 'timeout') {
@@ -414,11 +400,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 const div = document.createElement("div");
                 div.className = "review-item";
                 div.innerHTML = `<span>Domanda ${i+1}</span><span class="review-status alert">In sospeso</span>`;
-                div.onclick = () => {
-                    currentQuestionIndex = i;
-                    loadQuestion(i);
-                    showScreen("quiz-screen");
-                };
+                div.onclick = () => { currentQuestionIndex = i; loadQuestion(i); showScreen("quiz-screen"); };
                 list.appendChild(div);
             }
         });
@@ -432,37 +414,24 @@ document.addEventListener("DOMContentLoaded", () => {
         let score = 0;
         userAnswers.forEach(a => { if(a.isCorrect) score++; });
         document.getElementById("score-text").textContent = `${score} / ${filteredQuestions.length}`;
-        
         const container = document.getElementById("results-review-container");
         container.innerHTML = "";
-        
         filteredQuestions.forEach((q, i) => {
             const ans = userAnswers[i];
             const div = document.createElement("div");
             div.className = `review-item result-item ${ans.isCorrect ? 'correct' : 'wrong'}`;
             div.style.borderLeft = `5px solid ${ans.isCorrect ? '#28a745' : '#dc3545'}`;
-            
             div.innerHTML = `
                 <div style="width:100%">
                     <p style="margin:0; font-weight:700">${i+1}. ${q.question || "Match"}</p>
-                    <p style="margin:5px 0 0 0; font-size:0.9rem; color:#666">
-                        Risultato: <strong>${ans.isCorrect ? "Corretto" : "Sbagliato"}</strong>
-                    </p>
-                    <div class="result-explanation hidden" style="margin-top:10px; background:#f9f9f9; padding:10px; font-size:0.9rem;">
-                        ${q.explanation || "Nessuna spiegazione."}
-                    </div>
-                </div>
-            `;
+                    <p style="margin:5px 0 0 0; font-size:0.9rem; color:#666">Risultato: <strong>${ans.isCorrect ? "Corretto" : "Sbagliato"}</strong></p>
+                    <div class="result-explanation hidden" style="margin-top:10px; background:#f9f9f9; padding:10px; font-size:0.9rem;">${q.explanation || "Nessuna spiegazione."}</div>
+                </div>`;
             div.onclick = () => div.querySelector(".result-explanation").classList.toggle("hidden");
             container.appendChild(div);
         });
     };
 
-    restartBtn.onclick = () => {
-        userAnswers = [];
-        showScreen("library-screen");
-    };
-
-    loadLibrary();
-    showScreen("home-screen");
+    restartBtn.onclick = () => { userAnswers = []; showScreen("library-screen"); };
+    loadLibrary(); showScreen("home-screen");
 });
