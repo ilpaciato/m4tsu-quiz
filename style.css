@@ -12,7 +12,6 @@ body {
     background-repeat: no-repeat;
     background-attachment: fixed;
     display: flex;
-    flex-direction: column; /* Importante per mobile flow */
     justify-content: center;
     align-items: center;
     min-height: 100vh;
@@ -26,6 +25,8 @@ body {
     top: 40px; left: 40px;
     width: 220px;
     z-index: 1; 
+    /* Leggera ombra bianca per staccare dallo sfondo se necessario */
+    filter: drop-shadow(0 0 10px rgba(255,255,255,0.5));
 }
 
 .signature-bg {
@@ -85,7 +86,7 @@ p { color: #666; line-height: 1.6; font-size: 1.1rem; margin-bottom: 1.5rem; }
 .secondary-btn:hover { border-color: #333; color: #333; background: #fafafa; }
 .text-btn { background: none; border: none; color: #999; text-decoration: underline; cursor: pointer; font-size: 0.9rem; padding: 0 10px; }
 
-/* LISTA & SETTINGS */
+/* SETTINGS */
 #quiz-list-container { display: flex; flex-direction: column; gap: 1rem; }
 .quiz-list-item {
     border: 1px solid #e0e0e0; border-radius: 12px; padding: 1.5rem;
@@ -111,7 +112,7 @@ p { color: #666; line-height: 1.6; font-size: 1.1rem; margin-bottom: 1.5rem; }
 }
 .radio-box input:checked + span { border-color: #D90000; background-color: #fff5f5; color: #D90000; box-shadow: 0 2px 8px rgba(217,0,0,0.15); }
 
-/* QUIZ SCREEN */
+/* QUIZ */
 .quiz-top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; border-bottom: 1px solid #f0f0f0; padding-bottom: 1rem; }
 #question-counter { margin: 0; font-size: 1.1rem; font-weight: 600; color: #888; }
 #timer-display { color: #D90000; font-weight: 700; font-size: 1.1rem; background: #fff0f0; padding: 5px 12px; border-radius: 20px; }
@@ -120,7 +121,6 @@ p { color: #666; line-height: 1.6; font-size: 1.1rem; margin-bottom: 1.5rem; }
 #question-text { text-align: left; font-size: 1.3rem; line-height: 1.5; color: #222; margin-bottom: 1rem; }
 #question-image-container img { width: 100%; max-height: 250px; object-fit: cover; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
 
-/* OPZIONI */
 #question-body.multiple-choice { display: flex; flex-direction: column; gap: 10px; }
 .option-btn {
     width: 100%; padding: 1.2rem 1.5rem; background: #fff; border: 2px solid #f0f0f0;
@@ -133,7 +133,7 @@ p { color: #666; line-height: 1.6; font-size: 1.1rem; margin-bottom: 1.5rem; }
 .option-btn.wrong { border-color: #dc3545; background-color: #f8d7da; color: #721c24; }
 .option-btn:disabled { cursor: default; }
 
-/* MATCH GAME */
+/* MATCH */
 #question-body.match { display: flex; justify-content: space-between; gap: 1rem; }
 .match-column { width: 48%; display: flex; flex-direction: column; gap: 0.8rem; }
 .match-item {
@@ -142,11 +142,13 @@ p { color: #666; line-height: 1.6; font-size: 1.1rem; margin-bottom: 1.5rem; }
 }
 .match-item:hover { border-color: #ccc; }
 .match-item.selected { border-color: #333; background: #eee; font-weight: bold; }
+/* Colori Pastello Match */
 .match-color-0 { background-color: #e3f2fd; border-color: #2196f3; color: #0d47a1; } 
 .match-color-1 { background-color: #fff9c4; border-color: #fbc02d; color: #f57f17; } 
 .match-color-2 { background-color: #f3e5f5; border-color: #9c27b0; color: #4a148c; } 
 .match-color-3 { background-color: #ffe0b2; border-color: #ff9800; color: #e65100; } 
 .match-color-4 { background-color: #e0f2f1; border-color: #009688; color: #004d40; } 
+/* Risultati Match */
 .match-item.matched { border-color: #28a745 !important; background-color: #d4edda !important; color: #155724 !important; opacity: 1; }
 .match-item.wrong { border-color: #dc3545 !important; background-color: #f8d7da !important; color: #721c24 !important; }
 .correction-badge {
@@ -155,7 +157,7 @@ p { color: #666; line-height: 1.6; font-size: 1.1rem; margin-bottom: 1.5rem; }
     margin-left: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); flex-shrink: 0;
 }
 
-/* FOOTER */
+/* FOOTER & SPIEGAZIONE */
 .quiz-footer { display: flex; justify-content: space-between; align-items: center; margin-top: auto; padding-top: 1.5rem; border-top: 1px solid #f0f0f0; }
 #progress-bar { display: flex; gap: 6px; }
 .progress-dot { width: 12px; height: 12px; border: 2px solid #e0e0e0; border-radius: 50%; cursor: pointer; transition: all 0.3s; }
@@ -164,7 +166,6 @@ p { color: #666; line-height: 1.6; font-size: 1.1rem; margin-bottom: 1.5rem; }
 .progress-dot.skipped { background-color: #aaa; border-color: #aaa; }
 .action-buttons { display: flex; gap: 15px; align-items: center; }
 
-/* SPIEGAZIONE */
 #explanation-box {
     margin-top: 1rem; padding: 1.5rem; border-radius: 8px; width: 100%;
     background: #f9f9f9; border-left: 5px solid #ccc;
@@ -178,7 +179,7 @@ p { color: #666; line-height: 1.6; font-size: 1.1rem; margin-bottom: 1.5rem; }
 .correct-pair-list li { padding: 5px 0; border-bottom: 1px dashed #ddd; color: #333; font-weight: 500; }
 .correct-pair-list li:last-child { border-bottom: none; }
 
-/* RIEPILOGO */
+/* REVIEW */
 #unanswered-list, #results-review-container {
     text-align: left; margin: 2rem 0; max-height: 350px; overflow-y: auto; border: 1px solid #f0f0f0; border-radius: 12px; padding: 5px;
 }
@@ -187,99 +188,56 @@ p { color: #666; line-height: 1.6; font-size: 1.1rem; margin-bottom: 1.5rem; }
 .review-status { font-size: 0.8rem; padding: 4px 8px; border-radius: 4px; background: #eee; color: #666; }
 .review-status.alert { background: #fff3cd; color: #856404; }
 
-/* --- MEDIA QUERIES: OTTIMIZZAZIONE MOBILE --- */
+/* --- MEDIA QUERIES: MOBILE FIX --- */
 @media (max-width: 768px) {
     body {
-        display: block; /* Rimuove il flex center per lo scroll naturale */
+        display: block;
         padding: 1rem;
-        padding-top: 0; /* Spazio per il logo */
-        overflow-x: hidden; /* Evita scroll orizzontale */
+        padding-top: 80px; /* Spazio per il logo */
+        overflow-x: hidden;
     }
 
-    /* Loghi: Sganciati dal fixed, entrano nel flusso */
+    /* LOGO MOBILE: Absolute in alto a SX */
     .logo-bg {
-        position: relative; 
-        top: auto; left: auto;
-        display: block;
-        margin: 1rem auto 1.5rem auto; /* Centrato, spazio sotto */
-        width: 150px;
-        z-index: 1;
+        position: absolute;
+        top: 20px; 
+        left: 20px;
+        margin: 0;
+        width: 130px; /* Leggermente più piccolo che su desktop */
+        z-index: 5;
+        /* Alone bianco per staccare dallo sfondo */
+        filter: drop-shadow(0 0 8px rgba(255,255,255,1)); 
     }
     
+    /* FIRMA MOBILE: In fondo */
     .signature-bg {
         position: relative;
         bottom: auto; left: auto;
         display: block;
-        margin: 2rem auto 1rem auto; /* In fondo */
-        width: 120px;
-        z-index: 1;
+        margin: 3rem auto 1rem auto; /* Centrato sotto */
+        width: 100px;
     }
 
-    .main-container {
-        padding: 0; /* Il padding lo gestisce il body */
-    }
+    .main-container { padding: 0; }
+    .quiz-card { padding: 1.5rem; min-height: auto; }
 
-    .quiz-card {
-        padding: 1.5rem; /* Ridotto spazio interno */
-        min-height: auto;
-        box-shadow: 0 5px 20px rgba(0,0,0,0.05);
-    }
+    /* Layout Domande */
+    .question-layout { grid-template-columns: 1fr; gap: 1.5rem; }
+    .question-left { order: 1; text-align: center; }
+    .question-right { order: 2; }
+    #question-text { text-align: center; font-size: 1.2rem; }
 
-    /* Layout Domande: Colonna singola */
-    .question-layout {
-        grid-template-columns: 1fr;
-        gap: 1.5rem;
-    }
-    
-    .question-left {
-        order: 1;
-        text-align: center;
-    }
-    #question-text {
-        text-align: center;
-        font-size: 1.2rem;
-    }
-    .question-right {
-        order: 2;
-    }
+    /* Match Mobile */
+    #question-body.match { flex-direction: column; }
+    .match-column { width: 100%; }
+    .match-column:first-child { border-bottom: 1px dashed #ddd; padding-bottom: 1rem; margin-bottom: 1rem; }
 
-    /* Adattamento Match Game Mobile */
-    #question-body.match {
-        flex-direction: column;
-    }
-    .match-column {
-        width: 100%;
-    }
-    /* Aggiunge un separatore visivo tra le due colonne match su mobile */
-    .match-column:first-child {
-        border-bottom: 1px dashed #ddd;
-        padding-bottom: 1rem;
-        margin-bottom: 1rem;
-    }
-
-    /* Footer più compatto */
-    .quiz-footer {
-        flex-direction: column;
-        gap: 1.5rem;
-    }
-    #progress-bar {
-        order: 1; /* Barra in alto nel footer */
-        margin-bottom: 0.5rem;
-    }
-    #skip-btn {
-        order: 3; /* Salta in fondo */
-        width: 100%;
-        border: none;
-        color: #888;
-    }
-    .action-buttons {
-        order: 2; /* Azioni principali al centro */
-        width: 100%;
-        justify-content: space-between;
-    }
-    .submit-btn {
-        flex-grow: 1;
-    }
+    /* Footer Mobile */
+    .quiz-footer { flex-direction: column; gap: 1.5rem; }
+    #progress-bar { order: 1; margin-bottom: 0.5rem; }
+    .action-buttons { order: 2; width: 100%; justify-content: space-between; }
+    #skip-btn { order: 3; width: 100%; border: none; color: #888; }
+    .submit-btn { flex-grow: 1; }
 }
 
 .hidden { display: none !important; }

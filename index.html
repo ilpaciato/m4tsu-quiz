@@ -9,7 +9,7 @@
 </head>
 <body>
 
-    <!-- LOGO (Su mobile andrà in cima al flusso, su desktop fisso in alto a sx) -->
+    <!-- LOGO (Gestito via CSS per mobile/desktop) -->
     <img src="./images/logo.png" alt="M4tsu Logo" class="logo-bg">
 
     <div class="main-container">
@@ -24,7 +24,7 @@
                 </nav>
             </header>
 
-            <!-- 1. HOME SCREEN -->
+            <!-- 1. HOME -->
             <div id="home-screen" class="screen">
                 <div class="content-wrapper center-text">
                     <h2>Benvenuto ai Quiz M4tsu</h2>
@@ -33,20 +33,19 @@
                 </div>
             </div>
 
-            <!-- 2. LIBRARY SCREEN -->
+            <!-- 2. LIBRARY -->
             <div id="library-screen" class="screen hidden">
                 <h2>Libreria Quiz</h2>
                 <p>Seleziona un argomento:</p>
                 <div id="quiz-list-container"></div>
             </div>
 
-            <!-- 3. SETTINGS SCREEN -->
+            <!-- 3. SETTINGS -->
             <div id="settings-screen" class="screen hidden">
                 <h2 id="settings-quiz-title">Titolo Quiz</h2>
                 <p>Personalizza la tua partita</p>
                 
                 <form id="quiz-settings-form">
-                    <!-- Numero -->
                     <div class="setting-block">
                         <label><i class="fa-solid fa-list-ol"></i> Numero di Domande</label>
                         <div class="radio-group">
@@ -55,7 +54,6 @@
                             <label class="radio-box"><input type="radio" name="numQuestions" value="all"><span>Tutte</span></label>
                         </div>
                     </div>
-                    <!-- Tipologia -->
                     <div class="setting-block">
                         <label><i class="fa-solid fa-shapes"></i> Tipologia</label>
                         <div class="radio-group vertical">
@@ -64,7 +62,6 @@
                             <label class="radio-box wide"><input type="radio" name="questionType" value="match"><span><i class="fa-solid fa-link"></i> Abbinamenti</span></label>
                         </div>
                     </div>
-                    <!-- Modalità -->
                     <div class="setting-block">
                         <label><i class="fa-solid fa-stopwatch"></i> Modalità</label>
                         <div class="radio-group">
@@ -76,9 +73,8 @@
                 </form>
             </div>
 
-            <!-- 4. QUIZ SCREEN -->
+            <!-- 4. QUIZ -->
             <div id="quiz-screen" class="screen hidden">
-                
                 <div class="quiz-top-bar">
                     <h3 id="question-counter">Domanda 1 di 5</h3>
                     <div id="timer-display" class="hidden"><i class="fa-solid fa-clock"></i> <span>30s</span></div>
@@ -86,7 +82,7 @@
 
                 <div class="question-layout">
                     <div class="question-left">
-                        <h2 id="question-text">Testo domanda...</h2>
+                        <h2 id="question-text">Testo...</h2>
                         <div id="question-image-container"></div>
                     </div>
                     <div class="question-right">
@@ -110,7 +106,7 @@
                 </div>
             </div>
 
-            <!-- 5. REVIEW SCREEN -->
+            <!-- 5. REVIEW -->
             <div id="review-screen" class="screen hidden">
                 <div class="content-wrapper center-text">
                     <h2>Riepilogo</h2>
@@ -123,7 +119,7 @@
                 </div>
             </div>
 
-            <!-- 6. RESULTS SCREEN -->
+            <!-- 6. RESULTS -->
             <div id="results-screen" class="screen hidden">
                 <div class="content-wrapper center-text">
                     <h2>Quiz Terminato!</h2>
@@ -141,7 +137,7 @@
         </div> 
     </div> 
 
-    <!-- FIRMA (Su mobile andrà in fondo al flusso, su desktop fissa in basso a sx) -->
+    <!-- FIRMA -->
     <img src="./images/signature.png" alt="M4tsu Signature" class="signature-bg">
     
     <script src="app.js"></script>

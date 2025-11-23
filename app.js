@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
     
-    // --- SELETTORI ---
+    // SELETTORI
     const screens = document.querySelectorAll(".screen");
     const navLinks = document.querySelectorAll(".nav-link");
     
@@ -26,7 +26,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const restartBtn = document.getElementById("restart-btn");
     const homeToLibraryBtn = document.getElementById("home-to-library-btn");
 
-    // --- STATO ---
+    // STATO
     let quizLibrary = [];
     let selectedQuizFile = "";
     let filteredQuestions = [];
@@ -42,7 +42,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let currentSelection = { type: null, element: null };
     const MATCH_COLORS = ['match-color-0', 'match-color-1', 'match-color-2', 'match-color-3', 'match-color-4'];
 
-    // --- NAVIGAZIONE ---
+    // NAVIGAZIONE
     function showScreen(screenId) {
         screens.forEach(s => s.classList.add("hidden"));
         document.getElementById(screenId).classList.remove("hidden");
@@ -62,7 +62,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     homeToLibraryBtn.addEventListener("click", () => showScreen("library-screen"));
 
-    // --- CARICAMENTO ---
+    // CARICAMENTO LIBRERIA
     async function loadLibrary() {
         try {
             const res = await fetch("./data/quiz-list.json");
@@ -83,7 +83,7 @@ document.addEventListener("DOMContentLoaded", () => {
         } catch(e) { quizListContainer.innerHTML = "<p>Errore caricamento.</p>"; }
     }
 
-    // --- START QUIZ ---
+    // START QUIZ
     settingsForm.addEventListener("submit", async (e) => {
         e.preventDefault();
         const formData = new FormData(settingsForm);
@@ -112,7 +112,7 @@ document.addEventListener("DOMContentLoaded", () => {
         } catch(err) { console.error(err); }
     });
 
-    // --- LOAD QUESTION ---
+    // LOAD QUESTION
     function loadQuestion(index) {
         stopTimer();
         const q = filteredQuestions[index];
@@ -126,7 +126,6 @@ document.addEventListener("DOMContentLoaded", () => {
         questionImageContainer.innerHTML = q.image ? `<img src="${q.image}">` : "";
         questionBody.innerHTML = "";
         
-        // Reset classi spiegazione
         explanationBox.classList.add("hidden");
         explanationBox.classList.remove("correct", "wrong");
         
@@ -145,7 +144,6 @@ document.addEventListener("DOMContentLoaded", () => {
             nextBtn.classList.remove("hidden");
             if (index === filteredQuestions.length - 1) nextBtn.classList.add("hidden");
             
-            // Gestione Contenuto Spiegazione
             let showExpl = false;
             if (q.type === 'match') {
                 let html = `<p>${q.explanation || ""}</p><ul class="correct-pair-list">`;
@@ -160,14 +158,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 showExpl = true;
             }
 
-            // Gestione Colore Spiegazione
             if (showExpl) {
                 explanationBox.classList.remove("hidden");
-                if (state.isCorrect) {
-                    explanationBox.classList.add("correct");
-                } else {
-                    explanationBox.classList.add("wrong");
-                }
+                explanationBox.classList.add(state.isCorrect ? "correct" : "wrong");
             }
 
         } else {
@@ -183,7 +176,7 @@ document.addEventListener("DOMContentLoaded", () => {
         updateProgressBar();
     }
 
-    // --- MULTIPLE CHOICE ---
+    // MULTIPLE CHOICE
     function renderMultipleChoice(q, state) {
         questionBody.className = "multiple-choice";
         q.options.forEach(opt => {
@@ -215,7 +208,7 @@ document.addEventListener("DOMContentLoaded", () => {
         confirmBtn.disabled = false;
     }
 
-    // --- MATCH GAME ---
+    // MATCH GAME
     function renderMatch(q, state) {
         questionBody.className = "match";
         const col1 = document.createElement("div"); col1.className = "match-column";
@@ -233,7 +226,6 @@ document.addEventListener("DOMContentLoaded", () => {
         questionBody.appendChild(col2);
         
         if (state.status === 'confirmed' || state.status === 'timeout') {
-            // 1. Colora scelte
             state.matchPairs.forEach(pair => {
                 const cEl = Array.from(col1.children).find(el => el.textContent === pair.c);
                 const dEl = Array.from(col2.children).find(el => el.textContent === pair.d);
@@ -245,15 +237,12 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             });
 
-            // 2. Aggiungi Badge
             const concepts = q.concepts; 
             concepts.forEach((conceptText, idx) => {
                 const correctDesc = q.answers[conceptText];
                 const badgeNum = idx + 1; 
-
                 const cEl = Array.from(col1.children).find(el => el.firstChild.textContent.trim() === conceptText);
                 const dEl = Array.from(col2.children).find(el => el.firstChild.textContent.trim() === correctDesc);
-
                 if (cEl) addBadgeToElement(cEl, badgeNum);
                 if (dEl) addBadgeToElement(dEl, badgeNum);
             });
@@ -304,17 +293,14 @@ document.addEventListener("DOMContentLoaded", () => {
             } else {
                 const conceptEl = currentSelection.type === 'concept' ? currentSelection.element : el;
                 const descEl = currentSelection.type === 'description' ? currentSelection.element : el;
-                
                 const usedColors = activeMatches.map(m => m.colorClass);
                 const availableColor = MATCH_COLORS.find(c => !usedColors.includes(c)) || MATCH_COLORS[0];
 
                 activeMatches.push({ conceptEl, descEl, colorClass: availableColor });
-                
                 conceptEl.classList.remove("selected");
                 descEl.classList.remove("selected");
                 conceptEl.classList.add(availableColor);
                 descEl.classList.add(availableColor);
-                
                 currentSelection = { type: null, element: null };
                 updateMatchConfirmState();
             }
@@ -329,7 +315,7 @@ document.addEventListener("DOMContentLoaded", () => {
         confirmBtn.disabled = (activeMatches.length !== totalConcepts);
     }
 
-    // --- CONFERMA ---
+    // CONFERMA
     confirmBtn.onclick = () => {
         const state = userAnswers[currentQuestionIndex];
         const q = filteredQuestions[currentQuestionIndex];
@@ -340,7 +326,6 @@ document.addEventListener("DOMContentLoaded", () => {
         } else if (q.type === 'match') {
             let allCorrect = true;
             let savedPairs = [];
-            
             activeMatches.forEach(m => {
                 const cText = m.conceptEl.firstChild.textContent; 
                 const dText = m.descEl.firstChild.textContent;
@@ -348,7 +333,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (!isPairCorrect) allCorrect = false;
                 savedPairs.push({ c: cText, d: dText, isCorrect: isPairCorrect, colorClass: m.colorClass });
             });
-            
             state.isCorrect = allCorrect;
             state.selectedAnswer = allCorrect ? "Tutto corretto" : "Errori presenti";
             state.matchPairs = savedPairs; 
@@ -356,7 +340,7 @@ document.addEventListener("DOMContentLoaded", () => {
         loadQuestion(currentQuestionIndex);
     };
 
-    // --- NAVIGAZIONE ---
+    // NAVIGAZIONE
     skipBtn.onclick = () => {
         userAnswers[currentQuestionIndex].status = 'skipped';
         goToNext();
@@ -375,7 +359,7 @@ document.addEventListener("DOMContentLoaded", () => {
     
     finishEarlyBtn.onclick = showReview;
 
-    // --- UTILS ---
+    // TIMER & PROGRESS
     function startTimer() {
         timeLeft = 30;
         timerDisplay.querySelector("span").textContent = `${timeLeft}s`;
