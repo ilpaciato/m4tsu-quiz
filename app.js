@@ -1,3 +1,16 @@
+// REGISTRAZIONE SERVICE WORKER (PER PWA/OFFLINE)
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+            .then(registration => {
+                console.log('ServiceWorker registrato con successo:', registration.scope);
+            })
+            .catch(err => {
+                console.log('Fallimento registrazione ServiceWorker:', err);
+            });
+    });
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     
     // SELETTORI
@@ -80,7 +93,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 };
                 quizListContainer.appendChild(div);
             });
-        } catch(e) { quizListContainer.innerHTML = "<p>Errore caricamento.</p>"; }
+        } catch(e) { quizListContainer.innerHTML = "<p>Errore caricamento. Assicurati di essere online la prima volta.</p>"; }
     }
 
     // START QUIZ
