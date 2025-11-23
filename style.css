@@ -193,19 +193,20 @@ p { color: #666; line-height: 1.6; font-size: 1.1rem; margin-bottom: 1.5rem; }
     body {
         display: block;
         padding: 1rem;
-        padding-top: 80px; /* Spazio per il logo */
+        /* Spingo la card in basso di 140px per fare spazio al logo */
+        padding-top: 140px; 
         overflow-x: hidden;
     }
 
-    /* LOGO MOBILE: Absolute in alto a SX */
+    /* LOGO MOBILE: Absolute, Z-INDEX ALTO */
     .logo-bg {
         position: absolute;
-        top: 20px; 
-        left: 20px;
+        top: 10px;  /* Molto in alto */
+        left: 15px; /* Molto a sinistra */
         margin: 0;
-        width: 130px; /* Leggermente più piccolo che su desktop */
-        z-index: 5;
-        /* Alone bianco per staccare dallo sfondo */
+        width: 140px; /* Dimensione leggibile */
+        z-index: 20; /* SOPRA A TUTTO (La card è z-index 10) */
+        /* Ombra bianca per staccare dallo sfondo se c'è un ramo sotto */
         filter: drop-shadow(0 0 8px rgba(255,255,255,1)); 
     }
     
@@ -214,7 +215,7 @@ p { color: #666; line-height: 1.6; font-size: 1.1rem; margin-bottom: 1.5rem; }
         position: relative;
         bottom: auto; left: auto;
         display: block;
-        margin: 3rem auto 1rem auto; /* Centrato sotto */
+        margin: 3rem auto 1rem auto;
         width: 100px;
     }
 

@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>M4tsu Quiz</title>
     
-    <!-- PWA & Mobile Meta Tags -->
+    <!-- PWA Meta Tags -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#ffffff">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -17,14 +17,12 @@
 </head>
 <body>
 
-    <!-- LOGO -->
     <img src="./images/logo.png" alt="M4tsu Logo" class="logo-bg">
 
     <div class="main-container">
 
         <div id="quiz-container" class="quiz-card">
             
-            <!-- HEADER -->
             <header class="quiz-header">
                 <nav>
                     <a href="#" class="nav-link active" data-screen="home-screen">HOME</a>
@@ -32,7 +30,6 @@
                 </nav>
             </header>
 
-            <!-- 1. HOME -->
             <div id="home-screen" class="screen">
                 <div class="content-wrapper center-text">
                     <h2>Benvenuto ai Quiz M4tsu</h2>
@@ -41,14 +38,12 @@
                 </div>
             </div>
 
-            <!-- 2. LIBRARY -->
             <div id="library-screen" class="screen hidden">
                 <h2>Libreria Quiz</h2>
                 <p>Seleziona un argomento:</p>
                 <div id="quiz-list-container"></div>
             </div>
 
-            <!-- 3. SETTINGS -->
             <div id="settings-screen" class="screen hidden">
                 <h2 id="settings-quiz-title">Titolo Quiz</h2>
                 <p>Personalizza la tua partita</p>
@@ -81,7 +76,6 @@
                 </form>
             </div>
 
-            <!-- 4. QUIZ -->
             <div id="quiz-screen" class="screen hidden">
                 <div class="quiz-top-bar">
                     <h3 id="question-counter">Domanda 1 di 5</h3>
@@ -114,7 +108,6 @@
                 </div>
             </div>
 
-            <!-- 5. REVIEW -->
             <div id="review-screen" class="screen hidden">
                 <div class="content-wrapper center-text">
                     <h2>Riepilogo</h2>
@@ -127,7 +120,6 @@
                 </div>
             </div>
 
-            <!-- 6. RESULTS -->
             <div id="results-screen" class="screen hidden">
                 <div class="content-wrapper center-text">
                     <h2>Quiz Terminato!</h2>
@@ -145,7 +137,6 @@
         </div> 
     </div> 
 
-    <!-- FIRMA -->
     <img src="./images/signature.png" alt="M4tsu Signature" class="signature-bg">
     
     <script src="app.js"></script>

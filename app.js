@@ -1,19 +1,14 @@
-// REGISTRAZIONE SERVICE WORKER (PER PWA/OFFLINE)
+// SERVICE WORKER
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         navigator.serviceWorker.register('./sw.js')
-            .then(registration => {
-                console.log('ServiceWorker registrato con successo:', registration.scope);
-            })
-            .catch(err => {
-                console.log('Fallimento registrazione ServiceWorker:', err);
-            });
+            .then(reg => console.log('SW OK:', reg.scope))
+            .catch(err => console.log('SW Fail:', err));
     });
 }
 
 document.addEventListener("DOMContentLoaded", () => {
     
-    // SELETTORI
     const screens = document.querySelectorAll(".screen");
     const navLinks = document.querySelectorAll(".nav-link");
     
@@ -39,23 +34,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const restartBtn = document.getElementById("restart-btn");
     const homeToLibraryBtn = document.getElementById("home-to-library-btn");
 
-    // STATO
-    let quizLibrary = [];
-    let selectedQuizFile = "";
-    let filteredQuestions = [];
-    let currentQuestionIndex = 0;
-    let userAnswers = [];
-    
-    let gameMode = "pratica";
-    let timerInterval = null;
-    let timeLeft = 30;
-    
-    // Match Game
-    let activeMatches = []; 
-    let currentSelection = { type: null, element: null };
+    let quizLibrary = [], selectedQuizFile = "", filteredQuestions = [], currentQuestionIndex = 0, userAnswers = [];
+    let gameMode = "pratica", timerInterval = null, timeLeft = 30;
+    let activeMatches = [], currentSelection = { type: null, element: null };
     const MATCH_COLORS = ['match-color-0', 'match-color-1', 'match-color-2', 'match-color-3', 'match-color-4'];
 
-    // NAVIGAZIONE
     function showScreen(screenId) {
         screens.forEach(s => s.classList.add("hidden"));
         document.getElementById(screenId).classList.remove("hidden");
@@ -66,16 +49,9 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    navLinks.forEach(link => {
-        link.addEventListener("click", (e) => {
-            e.preventDefault();
-            showScreen(link.dataset.screen);
-        });
-    });
-
+    navLinks.forEach(link => link.addEventListener("click", (e) => { e.preventDefault(); showScreen(link.dataset.screen); }));
     homeToLibraryBtn.addEventListener("click", () => showScreen("library-screen"));
 
-    // CARICAMENTO LIBRERIA
     async function loadLibrary() {
         try {
             const res = await fetch("./data/quiz-list.json");
@@ -93,10 +69,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 };
                 quizListContainer.appendChild(div);
             });
-        } catch(e) { quizListContainer.innerHTML = "<p>Errore caricamento. Assicurati di essere online la prima volta.</p>"; }
+        } catch(e) { quizListContainer.innerHTML = "<p>Errore caricamento.</p>"; }
     }
 
-    // START QUIZ
     settingsForm.addEventListener("submit", async (e) => {
         e.preventDefault();
         const formData = new FormData(settingsForm);
@@ -125,7 +100,6 @@ document.addEventListener("DOMContentLoaded", () => {
         } catch(err) { console.error(err); }
     });
 
-    // LOAD QUESTION
     function loadQuestion(index) {
         stopTimer();
         const q = filteredQuestions[index];
@@ -189,7 +163,6 @@ document.addEventListener("DOMContentLoaded", () => {
         updateProgressBar();
     }
 
-    // MULTIPLE CHOICE
     function renderMultipleChoice(q, state) {
         questionBody.className = "multiple-choice";
         q.options.forEach(opt => {
@@ -221,7 +194,6 @@ document.addEventListener("DOMContentLoaded", () => {
         confirmBtn.disabled = false;
     }
 
-    // MATCH GAME
     function renderMatch(q, state) {
         questionBody.className = "match";
         const col1 = document.createElement("div"); col1.className = "match-column";
@@ -328,7 +300,6 @@ document.addEventListener("DOMContentLoaded", () => {
         confirmBtn.disabled = (activeMatches.length !== totalConcepts);
     }
 
-    // CONFERMA
     confirmBtn.onclick = () => {
         const state = userAnswers[currentQuestionIndex];
         const q = filteredQuestions[currentQuestionIndex];
@@ -353,7 +324,6 @@ document.addEventListener("DOMContentLoaded", () => {
         loadQuestion(currentQuestionIndex);
     };
 
-    // NAVIGAZIONE
     skipBtn.onclick = () => {
         userAnswers[currentQuestionIndex].status = 'skipped';
         goToNext();
@@ -372,7 +342,6 @@ document.addEventListener("DOMContentLoaded", () => {
     
     finishEarlyBtn.onclick = showReview;
 
-    // TIMER & PROGRESS
     function startTimer() {
         timeLeft = 30;
         timerDisplay.querySelector("span").textContent = `${timeLeft}s`;
