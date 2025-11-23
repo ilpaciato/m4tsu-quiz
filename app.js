@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
     
-    // --- ELEMENTI ---
+    // --- SELETTORI ---
     const screens = document.querySelectorAll(".screen");
     const navLinks = document.querySelectorAll(".nav-link");
     
@@ -12,12 +12,12 @@ document.addEventListener("DOMContentLoaded", () => {
     const reviewScreen = document.getElementById("review-screen");
     const resultsScreen = document.getElementById("results-screen");
     
-    // UI Elements
+    // Elementi UI
     const quizListContainer = document.getElementById("quiz-list-container");
     const settingsQuizTitle = document.getElementById("settings-quiz-title");
     const settingsForm = document.getElementById("quiz-settings-form");
     
-    const questionCounterTitle = document.getElementById("question-counter-title");
+    const questionCounter = document.getElementById("question-counter");
     const questionText = document.getElementById("question-text");
     const questionImageContainer = document.getElementById("question-image-container");
     const questionBody = document.getElementById("question-body");
@@ -27,6 +27,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const timerDisplay = document.getElementById("timer-display");
     
     // Bottoni
+    const homeToLibraryBtn = document.getElementById("home-to-library-btn");
     const confirmBtn = document.getElementById("confirm-btn");
     const nextBtn = document.getElementById("next-btn");
     const skipBtn = document.getElementById("skip-btn");
@@ -35,21 +36,19 @@ document.addEventListener("DOMContentLoaded", () => {
     const backToQuizBtn = document.getElementById("back-to-quiz-btn");
     const restartBtn = document.getElementById("restart-btn");
 
-    // --- STATO DEL GIOCO ---
+    // --- STATO ---
     let quizLibrary = [];
     let selectedQuizFile = "";
-    let allQuestions = [];
     let filteredQuestions = [];
     let currentQuestionIndex = 0;
+    let userAnswers = []; // Stato risposte
     
-    // Settings
-    let currentMode = "pratica"; // 'pratica' o 'sfida'
+    // Opzioni partita
+    let gameMode = "pratica"; 
     let timerInterval = null;
     let timeLeft = 30;
-
-    // userAnswers[i] = { status: 'selected'|'confirmed'|'skipped'|'timeout', selectedAnswer: '...', isCorrect: true/false }
-    let userAnswers = [];
-    // Stato match game
+    
+    // Match game temp state
     let matchState = { selectedConcept: null, selectedDescription: null, matchedPairs: 0 };
 
     // --- NAVIGAZIONE ---
@@ -57,15 +56,21 @@ document.addEventListener("DOMContentLoaded", () => {
         screens.forEach(s => s.classList.add("hidden"));
         document.getElementById(screenId).classList.remove("hidden");
         
+        // Aggiorna menu attivo
         navLinks.forEach(link => {
             if(link.dataset.screen === screenId) link.classList.add("active");
             else link.classList.remove("active");
         });
     }
 
-    document.querySelectorAll("[data-screen]").forEach(btn => {
-        btn.addEventListener("click", () => showScreen(btn.dataset.screen));
+    navLinks.forEach(link => {
+        link.addEventListener("click", (e) => {
+            e.preventDefault();
+            showScreen(link.dataset.screen);
+        });
     });
+
+    homeToLibraryBtn.addEventListener("click", () => showScreen("library-screen"));
 
     // --- CARICAMENTO LIBRERIA ---
     async function loadLibrary() {
@@ -77,8 +82,15 @@ document.addEventListener("DOMContentLoaded", () => {
             quizListContainer.innerHTML = "";
             quizLibrary.forEach(quiz => {
                 const div = document.createElement("div");
-                div.className = "quiz-list-item";
-                div.innerHTML = `<h3>${quiz.title}</h3><p>${quiz.description}</p>`;
+                div.className = "quiz-list-item"; // Usa stile CSS esistente per lista
+                // Stile inline temporaneo per la lista per renderla cliccabile
+                div.style.border = "1px solid #ddd";
+                div.style.padding = "1rem";
+                div.style.borderRadius = "10px";
+                div.style.cursor = "pointer";
+                div.style.marginBottom = "1rem";
+                
+                div.innerHTML = `<h3 style="margin:0; color:#D90000">${quiz.title}</h3><p style="margin:5px 0 0 0; text-align:left">${quiz.description}</p>`;
                 div.addEventListener("click", () => {
                     selectedQuizFile = quiz.file;
                     settingsQuizTitle.textContent = quiz.title;
@@ -89,31 +101,31 @@ document.addEventListener("DOMContentLoaded", () => {
         } catch(e) { console.error(e); }
     }
 
-    // --- AVVIO QUIZ CON SETTINGS ---
+    // --- AVVIO QUIZ (Impostazioni) ---
     settingsForm.addEventListener("submit", async (e) => {
         e.preventDefault();
         const formData = new FormData(settingsForm);
         
         const numQ = formData.get("numQuestions");
         const typeQ = formData.get("questionType");
-        currentMode = formData.get("quizMode");
+        gameMode = formData.get("quizMode");
 
         try {
             const res = await fetch(`./data/${selectedQuizFile}`);
             const data = await res.json();
             let allQ = data.questions;
             
-            // 1. Filtra per Tipologia
+            // 1. Filtro per Tipologia
             if (typeQ !== "all") {
                 allQ = allQ.filter(q => q.type === typeQ);
             }
 
             if (allQ.length === 0) {
-                alert("Nessuna domanda trovata per questa tipologia!");
+                alert("Nessuna domanda trovata con questi criteri.");
                 return;
             }
 
-            // 2. Mescola e Taglia numero
+            // 2. Mescola e Taglia
             allQ.sort(() => Math.random() - 0.5);
             if(numQ !== "all") allQ = allQ.slice(0, parseInt(numQ));
             
@@ -135,26 +147,27 @@ document.addEventListener("DOMContentLoaded", () => {
         const q = filteredQuestions[index];
         const state = userAnswers[index];
         
-        // Reset UI Match
+        // Reset variabili match
         matchState = { selectedConcept: null, selectedDescription: null, matchedPairs: 0 };
 
-        // UI Text
-        questionCounterTitle.textContent = `Domanda ${index + 1} di ${filteredQuestions.length}`;
-        questionText.textContent = q.question || q.title; // Fallback per match title
+        // UI Update
+        questionCounter.textContent = `Domanda ${index + 1} di ${filteredQuestions.length}`;
+        questionText.textContent = q.question || q.title; // Fallback per match
         questionImageContainer.innerHTML = q.image ? `<img src="${q.image}">` : "";
         questionBody.innerHTML = "";
         explanationBox.classList.add("hidden");
         
-        // Timer Display
-        if(currentMode === "sfida" && state.status !== 'confirmed') {
+        // Timer
+        if (gameMode === "sfida" && state.status !== 'confirmed') {
             timerDisplay.classList.remove("hidden");
             startTimer();
         } else {
             timerDisplay.classList.add("hidden");
         }
-        
+
         // Gestione Bottoni Navigazione
         if (state.status === 'confirmed' || state.status === 'timeout') {
+            // Già risposto
             confirmBtn.classList.add("hidden");
             skipBtn.classList.add("hidden");
             nextBtn.classList.remove("hidden");
@@ -169,21 +182,22 @@ document.addEventListener("DOMContentLoaded", () => {
                 explanationBox.classList.remove("hidden");
             }
         } else {
+            // Da rispondere
             confirmBtn.classList.remove("hidden");
-            confirmBtn.disabled = (state.selectedAnswer === null && q.type !== 'match'); // Match ha logica diversa
+            confirmBtn.disabled = (state.selectedAnswer === null && q.type !== 'match');
             skipBtn.classList.remove("hidden");
             nextBtn.classList.add("hidden");
             finishEarlyBtn.classList.add("hidden");
         }
 
-        // Render in base al tipo
+        // Render Layout
         if(q.type === 'multiple-choice') renderMultipleChoice(q, state);
         else if(q.type === 'match') renderMatch(q, state);
         
         updateProgressBar();
     }
 
-    // --- RENDER SCELTA MULTIPLA ---
+    // --- RENDER MULTIPLE CHOICE ---
     function renderMultipleChoice(q, state) {
         questionBody.className = "multiple-choice";
         q.options.forEach(opt => {
@@ -193,11 +207,15 @@ document.addEventListener("DOMContentLoaded", () => {
             
             if (state.status === 'confirmed' || state.status === 'timeout') {
                 btn.disabled = true;
+                // Logica colori finale
                 if (opt === state.selectedAnswer) {
                     btn.classList.add(state.isCorrect ? "correct" : "wrong");
                 }
-                if (opt === q.answer && !state.isCorrect) btn.classList.add("correct");
+                if (opt === q.answer && !state.isCorrect) {
+                    btn.classList.add("correct");
+                }
             } else {
+                // Logica selezione
                 if (opt === state.selectedAnswer) btn.classList.add("selected");
                 btn.onclick = () => selectOption(opt);
             }
@@ -205,23 +223,21 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // --- RENDER MATCH ---
+    // --- RENDER MATCH GAME ---
     function renderMatch(q, state) {
         questionBody.className = "match";
-        confirmBtn.classList.add("hidden"); // Match si conferma da solo progressivamente
+        confirmBtn.classList.add("hidden"); // Match si conferma da solo al completamento
 
         const col1 = document.createElement("div"); col1.className = "match-column";
         const col2 = document.createElement("div"); col2.className = "match-column";
 
-        // Se confermato, mostra tutto verde/rosso statico? 
-        // Per semplicità, nel match confermato mostriamo solo "completato"
-        // Qui implementiamo la logica interattiva
-        
         q.concepts.forEach(c => col1.appendChild(createMatchItem(c, 'concept', q)));
-        // Mischia descrizioni se non ancora risposto definitivamente
+        
+        // Se non risposto, mischia descrizioni
         let descList = q.descriptions;
-        if(state.status === 'unanswered') {
-             // Semplificazione: le mischiamo solo visualmente qui
+        if (state.status === 'unanswered') {
+             // Nota: In una app reale salveremmo l'ordine mischiato per non cambiarlo se l'utente esce e rientra
+             // Qui lo semplifichiamo rimischiando al volo
              descList = [...q.descriptions].sort(() => Math.random() - 0.5);
         }
         descList.forEach(d => col2.appendChild(createMatchItem(d, 'description', q)));
@@ -235,27 +251,26 @@ document.addEventListener("DOMContentLoaded", () => {
         div.className = "match-item";
         div.textContent = text;
         div.dataset.type = type;
-        
         div.onclick = () => handleMatchClick(div, text, type, q);
         return div;
     }
 
     function handleMatchClick(el, text, type, q) {
-        if(el.classList.contains("matched")) return;
-        
-        // Deseleziona altri dello stesso tipo
+        if (el.classList.contains("matched")) return;
+
+        // Gestione selezione visiva
         document.querySelectorAll(`.match-item[data-type="${type}"]`).forEach(i => i.classList.remove("selected"));
         el.classList.add("selected");
-        
-        if(type === 'concept') matchState.selectedConcept = el;
+
+        if (type === 'concept') matchState.selectedConcept = el;
         else matchState.selectedDescription = el;
 
         // Check match
-        if(matchState.selectedConcept && matchState.selectedDescription) {
+        if (matchState.selectedConcept && matchState.selectedDescription) {
             const concept = matchState.selectedConcept.textContent;
             const desc = matchState.selectedDescription.textContent;
-            
-            if(q.answers[concept] === desc) {
+
+            if (q.answers[concept] === desc) {
                 // Corretto
                 matchState.selectedConcept.classList.add("matched");
                 matchState.selectedDescription.classList.add("matched");
@@ -263,18 +278,20 @@ document.addEventListener("DOMContentLoaded", () => {
                 matchState.selectedDescription.classList.remove("selected");
                 matchState.matchedPairs++;
                 
-                // Reset selezione
+                // Reset
                 matchState.selectedConcept = null;
                 matchState.selectedDescription = null;
 
-                // Check se finito
-                if(matchState.matchedPairs === Object.keys(q.answers).length) {
+                // Check completamento
+                if (matchState.matchedPairs === Object.keys(q.answers).length) {
                     stopTimer();
                     const state = userAnswers[currentQuestionIndex];
                     state.status = 'confirmed';
                     state.isCorrect = true;
-                    state.selectedAnswer = "Match Completato"; // Placeholder
-                    loadQuestion(currentQuestionIndex);
+                    state.selectedAnswer = "Match Completato";
+                    
+                    // Aggiorna UI (Mostra bottone prossima)
+                    loadQuestion(currentQuestionIndex); 
                 }
             } else {
                 // Sbagliato
@@ -289,15 +306,15 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-
-    // --- AZIONI ---
+    // --- AZIONI UTENTE ---
     function selectOption(ans) {
         const state = userAnswers[currentQuestionIndex];
         state.selectedAnswer = ans;
         state.status = 'selected';
         
+        // Ricolora bottoni
         document.querySelectorAll(".option-btn").forEach(btn => {
-            if(btn.textContent === ans) btn.classList.add("selected");
+            if (btn.textContent === ans) btn.classList.add("selected");
             else btn.classList.remove("selected");
         });
         
@@ -310,6 +327,7 @@ document.addEventListener("DOMContentLoaded", () => {
         
         state.status = 'confirmed';
         state.isCorrect = (state.selectedAnswer === q.answer);
+        
         loadQuestion(currentQuestionIndex);
     };
 
@@ -343,21 +361,18 @@ document.addEventListener("DOMContentLoaded", () => {
             timerDisplay.textContent = `${timeLeft}s`;
             if (timeLeft <= 0) {
                 stopTimer();
-                handleTimeout();
+                // Timeout logic
+                const state = userAnswers[currentQuestionIndex];
+                state.status = 'timeout';
+                state.isCorrect = false;
+                state.selectedAnswer = "Tempo Scaduto";
+                loadQuestion(currentQuestionIndex);
             }
         }, 1000);
     }
     
     function stopTimer() {
-        if(timerInterval) clearInterval(timerInterval);
-    }
-    
-    function handleTimeout() {
-        const state = userAnswers[currentQuestionIndex];
-        state.status = 'timeout';
-        state.isCorrect = false;
-        state.selectedAnswer = "Tempo Scaduto";
-        loadQuestion(currentQuestionIndex);
+        if (timerInterval) clearInterval(timerInterval);
     }
 
     // --- PROGRESS BAR ---
@@ -396,23 +411,29 @@ document.addEventListener("DOMContentLoaded", () => {
         userAnswers.forEach((ans, i) => {
             if (ans.status !== 'confirmed' && ans.status !== 'timeout') {
                 pending++;
-                const item = document.createElement("div");
-                item.className = "result-item"; 
-                item.innerHTML = `Domanda ${i+1}: ${ans.status === 'skipped' ? 'Saltata' : 'Non confermata'}`;
-                item.onclick = () => {
+                const div = document.createElement("div");
+                div.className = "review-item";
+                div.style.borderBottom = "1px solid #eee";
+                div.style.padding = "0.5rem";
+                div.innerHTML = `<strong>Domanda ${i+1}</strong>: ${ans.status === 'skipped' ? 'Saltata' : 'Non confermata'}`;
+                div.onclick = () => {
                     currentQuestionIndex = i;
                     loadQuestion(i);
                     showScreen("quiz-screen");
                 };
-                list.appendChild(item);
+                list.appendChild(div);
             }
         });
         
-        if(pending === 0) list.innerHTML = "<p style='text-align:center'>Tutte le domande completate!</p>";
+        if (pending === 0) list.innerHTML = "<p>Tutte le domande sono state completate!</p>";
     }
 
     backToQuizBtn.onclick = () => showScreen("quiz-screen");
-    
+    restartBtn.onclick = () => {
+        // Reset totale e torna alla home
+        showScreen("library-screen");
+    };
+
     submitAllBtn.onclick = () => {
         showScreen("results-screen");
         let score = 0;
@@ -421,22 +442,29 @@ document.addEventListener("DOMContentLoaded", () => {
         
         const container = document.getElementById("results-review-container");
         container.innerHTML = "";
+        
         filteredQuestions.forEach((q, i) => {
             const ans = userAnswers[i];
             const div = document.createElement("div");
-            div.className = `result-item ${ans.isCorrect ? 'correct' : (ans.status==='skipped' ? 'skipped' : 'wrong')}`;
+            div.className = "review-item";
+            // Colore bordo sinistro in base al risultato
+            let color = ans.isCorrect ? "green" : (ans.status === 'skipped' ? "gray" : "red");
+            div.style.borderLeft = `5px solid ${color}`;
+            div.style.marginBottom = "0.5rem";
+            div.style.background = "#fff";
+            
             div.innerHTML = `
-                <p><strong>${i+1}. ${q.question || "Abbinamento"}</strong></p>
-                <div class="result-explanation hidden">
-                    <p>Tua risposta: ${ans.selectedAnswer || "Nessuna"}</p>
-                    <p>Corretta: ${q.answer || "Vedi abbinamenti"}</p>
-                    <hr>
-                    <p>${q.explanation || ""}</p>
+                <p style="margin:0; text-align:left"><strong>${i+1}. ${q.question || "Domanda Match"}</strong></p>
+                <p style="margin:0; font-size:0.9rem; text-align:left; color:#666">
+                    Tua: ${ans.selectedAnswer || "Nessuna"} - 
+                    ${ans.isCorrect ? "Corretta" : "Sbagliata"}
+                </p>
+                <div class="explanation hidden" style="margin-top:5px; background:#f9f9f9; padding:5px;">
+                    <small>${q.explanation || "Nessuna spiegazione disponibile."}</small>
                 </div>
             `;
-            // Clicca per espandere
             div.onclick = () => {
-                div.querySelector(".result-explanation").classList.toggle("hidden");
+                div.querySelector(".explanation").classList.toggle("hidden");
             };
             container.appendChild(div);
         });
