@@ -5,79 +5,150 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>M4tsu Quiz</title>
     <link rel="stylesheet" href="style.css">
+    <!-- Icone per abbellire (opzionale) -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
+
+    <!-- LOGO SPOSTATO QUI: Fuori dalla card, fisso in alto a sinistra -->
+    <img src="./images/logo.png" alt="M4tsu Logo" class="logo-fixed">
 
     <div class="main-container">
 
         <div id="quiz-container" class="quiz-card">
             
             <header class="quiz-header">
-                <img src="./images/logo.png" alt="M4tsu Logo" class="logo">
+                <!-- Il logo è stato rimosso da qui -->
                 <nav>
                     <a href="#" class="nav-link active" data-screen="home-screen">HOME</a>
                     <a href="#" class="nav-link" data-screen="library-screen">QUIZZES</a>
                 </nav>
             </header>
 
+            <!-- SCHERMATA HOME -->
             <div id="home-screen" class="screen">
-                <h2>Benvenuto ai Quiz M4tsu</h2>
-                <p>Metti alla prova la tua conoscenza della cultura giapponese e altro ancora. Scegli un quiz e inizia!</p>
-                <button id="home-to-library-btn" class="submit-btn" data-screen="library-screen">Sfoglia Quiz</button>
+                <div class="intro-content">
+                    <h2>Benvenuto ai Quiz M4tsu</h2>
+                    <p>Metti alla prova la tua conoscenza della cultura giapponese e altro ancora.</p>
+                    <button id="home-to-library-btn" class="submit-btn" data-screen="library-screen">Sfoglia Quiz</button>
+                </div>
             </div>
 
+            <!-- SCHERMATA LIBRERIA -->
             <div id="library-screen" class="screen hidden">
                 <h2>Libreria Quiz</h2>
                 <p>Seleziona un argomento per iniziare.</p>
                 <div id="quiz-list-container"></div>
             </div>
 
+            <!-- SCHERMATA SETTINGS (NUOVO STILE) -->
             <div id="settings-screen" class="screen hidden">
-                <h2 id="settings-quiz-title"></h2>
-                <p>Configura la tua partita.</p>
+                <div class="settings-header">
+                    <h2 id="settings-quiz-title">Titolo Quiz</h2>
+                    <img src="./images/background.jpg" alt="Decoration" class="settings-decoration"> 
+                    <!-- Nota: usa un'immagine di ramo o simile per la decorazione in alto a destra se vuoi -->
+                </div>
+                
                 <form id="quiz-settings-form">
+                    
+                    <!-- Selezione Numero Domande -->
                     <div class="setting-group">
-                        <h4>Quante domande?</h4>
-                        <label><input type="radio" name="numQuestions" value="5" checked> 5</label>
-                        <label><input type="radio" name="numQuestions" value="10"> 10</label>
-                        <label><input type="radio" name="numQuestions" value="all"> Tutte</label>
+                        <label>Numero di domande:</label>
+                        <div class="radio-group-numbers">
+                            <label class="radio-btn">
+                                <input type="radio" name="numQuestions" value="5" checked>
+                                <span>5</span>
+                            </label>
+                            <label class="radio-btn">
+                                <input type="radio" name="numQuestions" value="10">
+                                <span>10</span>
+                            </label>
+                            <label class="radio-btn">
+                                <input type="radio" name="numQuestions" value="20">
+                                <span>20</span>
+                            </label>
+                            <label class="radio-btn">
+                                <input type="radio" name="numQuestions" value="all">
+                                <span>All</span>
+                            </label>
+                        </div>
                     </div>
+
+                    <!-- Modalità (Pratica/Sfida) -->
                     <div class="setting-group">
-                        <h4>Quali tipi di domande?</h4>
-                        <label><input type="radio" name="questionType" value="all" checked> Tutte</label>
-                        <label><input type="radio" name="questionType" value="multiple-choice"> Solo Scelta Multipla</label>
-                        <label><input type="radio" name="questionType" value="match"> Solo Match</label>
+                        <label>Modalità:</label>
+                         <div class="select-wrapper">
+                            <select name="quizMode" id="quizModeSelect">
+                                <option value="pratica">Pratica (No Timer)</option>
+                                <option value="sfida">Sfida (Timer 30s)</option>
+                            </select>
+                        </div>
                     </div>
-                    <div class="setting-group">
-                        <h4>Modalità di gioco</h4>
-                        <label><input type="radio" name="quizMode" value="pratica" checked> Pratica (Nessun timer)</label>
-                        <label><input type="radio" name="quizMode" value="sfida"> Sfida (30s per domanda)</label>
+
+                    <!-- Toggle "Prendi tutte" (Esempio UI) -->
+                    <div class="setting-group toggle-row">
+                        <label>Mescola Domande</label>
+                        <label class="switch">
+                            <input type="checkbox" name="shuffle" checked>
+                            <span class="slider round"></span>
+                        </label>
                     </div>
-                    <button id="start-quiz-btn" type="submit" class="submit-btn">Inizia Quiz</button>
+
+                    <button id="start-quiz-btn" type="submit" class="submit-btn">Salva e Inizia</button>
                 </form>
             </div>
 
+            <!-- SCHERMATA QUIZ -->
             <div id="quiz-screen" class="screen hidden">
                 
-                <div id="timer-display" class="hidden"></div>
-                
-                <div id="question-header"></div>
+                <!-- Navigazione Domande (Numero domanda) -->
+                <div class="quiz-top-bar">
+                    <span id="question-counter">Domanda 1</span>
+                    <div id="timer-display" class="hidden"></div>
+                </div>
+
                 <div id="question-image-container"></div>
-                <div id="question-body"></div>
+                
+                <div id="question-content">
+                    <h3 id="question-text"></h3>
+                    <div id="question-body"></div>
+                </div>
                 
                 <div id="explanation-box" class="hidden">
                     <h4>Spiegazione:</h4>
                     <p id="explanation-text"></p>
                 </div>
                 
+                <!-- CONTROLLI: Indietro, Conferma, Prossima -->
                 <div class="quiz-controls">
-                    <button id="skip-btn" class="secondary-btn">Salta</button>
-                    <button id="next-btn" class="submit-btn hidden">Prossima</button>
+                    <button id="prev-btn" class="secondary-btn" title="Indietro"><i class="fa-solid fa-arrow-left"></i></button>
+                    
+                    <div class="action-buttons">
+                        <button id="confirm-btn" class="submit-btn" disabled>Conferma</button>
+                        <button id="next-btn" class="submit-btn hidden">Prossima</button>
+                        <button id="finish-early-btn" class="secondary-btn hidden">Finito</button>
+                    </div>
                 </div>
                 
                 <div id="progress-bar"></div>
             </div>
 
+            <!-- SCHERMATA RIEPILOGO PRE-RISULTATI (NUOVA) -->
+            <div id="review-screen" class="screen hidden">
+                <h2>Sei sicuro?</h2>
+                <p>Hai ancora delle domande non confermate o saltate.</p>
+                
+                <div id="unanswered-list">
+                    <!-- Lista generata via JS -->
+                </div>
+
+                <div class="review-actions">
+                    <button id="back-to-quiz-btn" class="secondary-btn">Torna al Quiz</button>
+                    <button id="submit-all-btn" class="submit-btn">Termina e Mostra Risultati</button>
+                </div>
+            </div>
+
+            <!-- SCHERMATA RISULTATI -->
             <div id="results-screen" class="screen hidden">
                 <h2>Quiz Terminato!</h2>
                 <p>Il tuo punteggio finale è:</p>
@@ -89,8 +160,12 @@
                 <button id="restart-btn" class="submit-btn" data-screen="library-screen">Torna alla Libreria</button>
             </div>
 
-        </div> <img src="./images/signature.png" alt="M4tsu Signature" class="signature">
+        </div> 
+        
+        <!-- Firma in basso a sinistra -->
+        <img src="./images/signature.png" alt="M4tsu Signature" class="signature">
 
-    </div> <script src="app.js"></script>
+    </div> 
+    <script src="app.js"></script>
 </body>
 </html>
