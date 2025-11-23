@@ -19,13 +19,12 @@ body {
     position: relative;
 }
 
-/* --- 2. ELEMENTI SFONDO (Desktop Default) --- */
+/* --- 2. ELEMENTI SFONDO --- */
 .logo-bg {
     position: fixed;
     top: 40px; left: 40px;
     width: 220px;
     z-index: 1; 
-    /* Leggera ombra bianca per staccare dallo sfondo se necessario */
     filter: drop-shadow(0 0 10px rgba(255,255,255,0.5));
 }
 
@@ -55,7 +54,7 @@ body {
     margin: 0 auto;
 }
 
-/* HEADER */
+/* --- 4. HEADER --- */
 .quiz-header { display: flex; justify-content: center; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid #f0f0f0; }
 .nav-link {
     font-size: 0.9rem; font-weight: 700; text-decoration: none; color: #888;
@@ -63,13 +62,13 @@ body {
 }
 .nav-link.active, .nav-link:hover { color: #D90000; border-bottom: 3px solid #D90000; }
 
-/* TYPO */
+/* --- 5. TIPOGRAFIA --- */
 h2 { color: #222; margin-bottom: 1rem; text-align: center; font-size: 2rem; }
 h3 { font-size: 1.4rem; color: #333; margin-bottom: 1rem; }
 p { color: #666; line-height: 1.6; font-size: 1.1rem; margin-bottom: 1.5rem; }
 .center-text { text-align: center; }
 
-/* BOTTONI */
+/* --- 6. BOTTONI --- */
 .submit-btn {
     background-color: #333; color: #fff; border: none; padding: 0.9rem 2rem;
     border-radius: 50px; font-weight: 700; font-size: 1rem; cursor: pointer;
@@ -85,8 +84,40 @@ p { color: #666; line-height: 1.6; font-size: 1.1rem; margin-bottom: 1.5rem; }
 }
 .secondary-btn:hover { border-color: #333; color: #333; background: #fafafa; }
 .text-btn { background: none; border: none; color: #999; text-decoration: underline; cursor: pointer; font-size: 0.9rem; padding: 0 10px; }
+.text-btn:hover { color: #666; }
 
-/* SETTINGS */
+/* STILE BOTTONE GEMINI */
+.gemini-btn {
+    margin-top: 1rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 0.8rem 1.5rem;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: transform 0.2s, box-shadow 0.2s;
+    font-size: 0.9rem;
+}
+.gemini-btn:hover {
+    transform: scale(1.02);
+    box-shadow: 0 4px 12px rgba(118, 75, 162, 0.3);
+}
+.gemini-response {
+    margin-top: 1rem;
+    background: #f0f4ff;
+    border-left: 4px solid #764ba2;
+    padding: 1rem;
+    border-radius: 8px;
+    font-size: 0.95rem;
+}
+.gemini-response p { margin: 0; color: #333; text-align: left; }
+.loading-text { color: #667eea; font-style: italic; }
+
+/* --- 7. SETTINGS & LISTA --- */
 #quiz-list-container { display: flex; flex-direction: column; gap: 1rem; }
 .quiz-list-item {
     border: 1px solid #e0e0e0; border-radius: 12px; padding: 1.5rem;
@@ -112,7 +143,7 @@ p { color: #666; line-height: 1.6; font-size: 1.1rem; margin-bottom: 1.5rem; }
 }
 .radio-box input:checked + span { border-color: #D90000; background-color: #fff5f5; color: #D90000; box-shadow: 0 2px 8px rgba(217,0,0,0.15); }
 
-/* QUIZ */
+/* --- 8. QUIZ SCREEN LAYOUT --- */
 .quiz-top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; border-bottom: 1px solid #f0f0f0; padding-bottom: 1rem; }
 #question-counter { margin: 0; font-size: 1.1rem; font-weight: 600; color: #888; }
 #timer-display { color: #D90000; font-weight: 700; font-size: 1.1rem; background: #fff0f0; padding: 5px 12px; border-radius: 20px; }
@@ -121,6 +152,7 @@ p { color: #666; line-height: 1.6; font-size: 1.1rem; margin-bottom: 1.5rem; }
 #question-text { text-align: left; font-size: 1.3rem; line-height: 1.5; color: #222; margin-bottom: 1rem; }
 #question-image-container img { width: 100%; max-height: 250px; object-fit: cover; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
 
+/* OPZIONI */
 #question-body.multiple-choice { display: flex; flex-direction: column; gap: 10px; }
 .option-btn {
     width: 100%; padding: 1.2rem 1.5rem; background: #fff; border: 2px solid #f0f0f0;
@@ -133,7 +165,7 @@ p { color: #666; line-height: 1.6; font-size: 1.1rem; margin-bottom: 1.5rem; }
 .option-btn.wrong { border-color: #dc3545; background-color: #f8d7da; color: #721c24; }
 .option-btn:disabled { cursor: default; }
 
-/* MATCH */
+/* MATCH GAME */
 #question-body.match { display: flex; justify-content: space-between; gap: 1rem; }
 .match-column { width: 48%; display: flex; flex-direction: column; gap: 0.8rem; }
 .match-item {
@@ -142,13 +174,11 @@ p { color: #666; line-height: 1.6; font-size: 1.1rem; margin-bottom: 1.5rem; }
 }
 .match-item:hover { border-color: #ccc; }
 .match-item.selected { border-color: #333; background: #eee; font-weight: bold; }
-/* Colori Pastello Match */
 .match-color-0 { background-color: #e3f2fd; border-color: #2196f3; color: #0d47a1; } 
 .match-color-1 { background-color: #fff9c4; border-color: #fbc02d; color: #f57f17; } 
 .match-color-2 { background-color: #f3e5f5; border-color: #9c27b0; color: #4a148c; } 
 .match-color-3 { background-color: #ffe0b2; border-color: #ff9800; color: #e65100; } 
 .match-color-4 { background-color: #e0f2f1; border-color: #009688; color: #004d40; } 
-/* Risultati Match */
 .match-item.matched { border-color: #28a745 !important; background-color: #d4edda !important; color: #155724 !important; opacity: 1; }
 .match-item.wrong { border-color: #dc3545 !important; background-color: #f8d7da !important; color: #721c24 !important; }
 .correction-badge {
@@ -157,7 +187,7 @@ p { color: #666; line-height: 1.6; font-size: 1.1rem; margin-bottom: 1.5rem; }
     margin-left: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); flex-shrink: 0;
 }
 
-/* FOOTER & SPIEGAZIONE */
+/* FOOTER */
 .quiz-footer { display: flex; justify-content: space-between; align-items: center; margin-top: auto; padding-top: 1.5rem; border-top: 1px solid #f0f0f0; }
 #progress-bar { display: flex; gap: 6px; }
 .progress-dot { width: 12px; height: 12px; border: 2px solid #e0e0e0; border-radius: 50%; cursor: pointer; transition: all 0.3s; }
@@ -166,6 +196,7 @@ p { color: #666; line-height: 1.6; font-size: 1.1rem; margin-bottom: 1.5rem; }
 .progress-dot.skipped { background-color: #aaa; border-color: #aaa; }
 .action-buttons { display: flex; gap: 15px; align-items: center; }
 
+/* SPIEGAZIONE */
 #explanation-box {
     margin-top: 1rem; padding: 1.5rem; border-radius: 8px; width: 100%;
     background: #f9f9f9; border-left: 5px solid #ccc;
@@ -193,24 +224,18 @@ p { color: #666; line-height: 1.6; font-size: 1.1rem; margin-bottom: 1.5rem; }
     body {
         display: block;
         padding: 1rem;
-        /* Spingo la card in basso di 140px per fare spazio al logo */
         padding-top: 140px; 
         overflow-x: hidden;
     }
 
-    /* LOGO MOBILE: Absolute, Z-INDEX ALTO */
     .logo-bg {
         position: absolute;
-        top: 10px;  /* Molto in alto */
-        left: 15px; /* Molto a sinistra */
-        margin: 0;
-        width: 140px; /* Dimensione leggibile */
-        z-index: 20; /* SOPRA A TUTTO (La card è z-index 10) */
-        /* Ombra bianca per staccare dallo sfondo se c'è un ramo sotto */
+        top: 10px; left: 15px;
+        width: 140px;
+        z-index: 20;
         filter: drop-shadow(0 0 8px rgba(255,255,255,1)); 
     }
     
-    /* FIRMA MOBILE: In fondo */
     .signature-bg {
         position: relative;
         bottom: auto; left: auto;
@@ -222,18 +247,15 @@ p { color: #666; line-height: 1.6; font-size: 1.1rem; margin-bottom: 1.5rem; }
     .main-container { padding: 0; }
     .quiz-card { padding: 1.5rem; min-height: auto; }
 
-    /* Layout Domande */
     .question-layout { grid-template-columns: 1fr; gap: 1.5rem; }
     .question-left { order: 1; text-align: center; }
     .question-right { order: 2; }
     #question-text { text-align: center; font-size: 1.2rem; }
 
-    /* Match Mobile */
     #question-body.match { flex-direction: column; }
     .match-column { width: 100%; }
     .match-column:first-child { border-bottom: 1px dashed #ddd; padding-bottom: 1rem; margin-bottom: 1rem; }
 
-    /* Footer Mobile */
     .quiz-footer { flex-direction: column; gap: 1.5rem; }
     #progress-bar { order: 1; margin-bottom: 0.5rem; }
     .action-buttons { order: 2; width: 100%; justify-content: space-between; }
