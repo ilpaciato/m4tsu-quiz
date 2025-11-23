@@ -101,6 +101,8 @@ p { color: #666; line-height: 1.6; font-size: 1.1rem; margin-bottom: 1.5rem; }
     gap: 8px;
     transition: transform 0.2s, box-shadow 0.2s;
     font-size: 0.9rem;
+    width: 100%; /* Occupa larghezza su mobile */
+    justify-content: center;
 }
 .gemini-btn:hover {
     transform: scale(1.02);
