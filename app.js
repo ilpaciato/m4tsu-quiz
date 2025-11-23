@@ -125,7 +125,10 @@ document.addEventListener("DOMContentLoaded", () => {
         questionText.textContent = q.question || q.title;
         questionImageContainer.innerHTML = q.image ? `<img src="${q.image}">` : "";
         questionBody.innerHTML = "";
+        
+        // Reset classi spiegazione
         explanationBox.classList.add("hidden");
+        explanationBox.classList.remove("correct", "wrong");
         
         if(gameMode === "sfida" && state.status !== 'confirmed') {
             timerDisplay.classList.remove("hidden");
@@ -142,20 +145,31 @@ document.addEventListener("DOMContentLoaded", () => {
             nextBtn.classList.remove("hidden");
             if (index === filteredQuestions.length - 1) nextBtn.classList.add("hidden");
             
-            // Mostra spiegazione estesa per Match
+            // Gestione Contenuto Spiegazione
+            let showExpl = false;
             if (q.type === 'match') {
-                // Costruiamo una lista delle risposte corrette
                 let html = `<p>${q.explanation || ""}</p><ul class="correct-pair-list">`;
                 Object.keys(q.answers).forEach((key, idx) => {
                     html += `<li><span class="correction-badge">${idx + 1}</span> ${key} ➜ ${q.answers[key]}</li>`;
                 });
                 html += "</ul>";
                 explanationText.innerHTML = html;
-                explanationBox.classList.remove("hidden");
+                showExpl = true;
             } else if (q.explanation) {
                 explanationText.textContent = q.explanation;
-                explanationBox.classList.remove("hidden");
+                showExpl = true;
             }
+
+            // Gestione Colore Spiegazione
+            if (showExpl) {
+                explanationBox.classList.remove("hidden");
+                if (state.isCorrect) {
+                    explanationBox.classList.add("correct");
+                } else {
+                    explanationBox.classList.add("wrong");
+                }
+            }
+
         } else {
             confirmBtn.classList.remove("hidden");
             confirmBtn.disabled = true; 
@@ -201,7 +215,7 @@ document.addEventListener("DOMContentLoaded", () => {
         confirmBtn.disabled = false;
     }
 
-    // --- MATCH GAME LOGIC ---
+    // --- MATCH GAME ---
     function renderMatch(q, state) {
         questionBody.className = "match";
         const col1 = document.createElement("div"); col1.className = "match-column";
@@ -218,10 +232,8 @@ document.addEventListener("DOMContentLoaded", () => {
         questionBody.appendChild(col1);
         questionBody.appendChild(col2);
         
-        // SE CONFERMATO: Ricolora e aggiungi BADGE
         if (state.status === 'confirmed' || state.status === 'timeout') {
-            
-            // 1. Ricolora le scelte dell'utente
+            // 1. Colora scelte
             state.matchPairs.forEach(pair => {
                 const cEl = Array.from(col1.children).find(el => el.textContent === pair.c);
                 const dEl = Array.from(col2.children).find(el => el.textContent === pair.d);
@@ -233,16 +245,13 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             });
 
-            // 2. Aggiungi BADGE NUMERICI per mostrare le associazioni vere
-            // Iteriamo sui concetti originali per dare un numero sequenziale (1, 2, 3)
+            // 2. Aggiungi Badge
             const concepts = q.concepts; 
             concepts.forEach((conceptText, idx) => {
                 const correctDesc = q.answers[conceptText];
-                const badgeNum = idx + 1; // 1, 2, 3...
+                const badgeNum = idx + 1; 
 
-                // Trova elemento DOM Concetto
-                const cEl = Array.from(col1.children).find(el => el.firstChild.textContent.trim() === conceptText); // firstChild per ignorare badge se già esiste
-                // Trova elemento DOM Descrizione
+                const cEl = Array.from(col1.children).find(el => el.firstChild.textContent.trim() === conceptText);
                 const dEl = Array.from(col2.children).find(el => el.firstChild.textContent.trim() === correctDesc);
 
                 if (cEl) addBadgeToElement(cEl, badgeNum);
@@ -252,7 +261,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function addBadgeToElement(el, num) {
-        // Evita duplicati
         if (el.querySelector(".correction-badge")) return;
         const badge = document.createElement("span");
         badge.className = "correction-badge";
@@ -263,11 +271,9 @@ document.addEventListener("DOMContentLoaded", () => {
     function createMatchItem(text, type) {
         const div = document.createElement("div");
         div.className = "match-item";
-        // Usa span per il testo così possiamo appendere il badge dopo
         const span = document.createElement("span");
         span.textContent = text;
         div.appendChild(span);
-        
         div.dataset.type = type;
         div.onclick = () => handleMatchSelection(div);
         return div;
@@ -336,30 +342,21 @@ document.addEventListener("DOMContentLoaded", () => {
             let savedPairs = [];
             
             activeMatches.forEach(m => {
-                // Nota: m.conceptEl ha dentro <span>Testo</span>, usiamo textContent
                 const cText = m.conceptEl.firstChild.textContent; 
                 const dText = m.descEl.firstChild.textContent;
                 const isPairCorrect = (q.answers[cText] === dText);
-                
                 if (!isPairCorrect) allCorrect = false;
-                
-                savedPairs.push({
-                    c: cText,
-                    d: dText,
-                    isCorrect: isPairCorrect,
-                    colorClass: m.colorClass
-                });
+                savedPairs.push({ c: cText, d: dText, isCorrect: isPairCorrect, colorClass: m.colorClass });
             });
             
             state.isCorrect = allCorrect;
             state.selectedAnswer = allCorrect ? "Tutto corretto" : "Errori presenti";
             state.matchPairs = savedPairs; 
         }
-        
         loadQuestion(currentQuestionIndex);
     };
 
-    // --- ALTRI BOTTONI ---
+    // --- NAVIGAZIONE ---
     skipBtn.onclick = () => {
         userAnswers[currentQuestionIndex].status = 'skipped';
         goToNext();
@@ -378,7 +375,7 @@ document.addEventListener("DOMContentLoaded", () => {
     
     finishEarlyBtn.onclick = showReview;
 
-    // --- TIMER & PROGRESS ---
+    // --- UTILS ---
     function startTimer() {
         timeLeft = 30;
         timerDisplay.querySelector("span").textContent = `${timeLeft}s`;
@@ -415,7 +412,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // --- REVIEW ---
     function showReview() {
         showScreen("review-screen");
         const list = document.getElementById("unanswered-list");
